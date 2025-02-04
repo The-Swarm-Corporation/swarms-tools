@@ -7,13 +7,14 @@ from rich.console import Console
 console = Console()
 load_dotenv()
 
+
 def format_query_results(json_data: Dict[str, Any]) -> str:
     """
     Formats Tavily search results into a structured text format.
-    
+
     Args:
         json_data: Dictionary containing Tavily query results
-        
+
     Returns:
         Formatted string with search results
     """
@@ -43,13 +44,14 @@ def format_query_results(json_data: Dict[str, Any]) -> str:
 
     return "".join(formatted_text)
 
+
 def tavily_search(query: str) -> str:
     """
     Performs a web search using the Tavily API
-    
+
     Args:
         query: Search query string
-        
+
     Returns:
         Formatted search results string
     """
@@ -58,19 +60,20 @@ def tavily_search(query: str) -> str:
 
     # Execute search query
     response = tavily_client.search(query)
-    
+
     # Print raw JSON response
     console.print("\n[bold]Tavily Raw Response:[/bold]")
     console.print(response)
 
     # Format results
     formatted_text = format_query_results(response)
-    
+
     # Save results to file
     with open("tavily_search_results.txt", "w") as file:
         file.write(formatted_text)
-        
+
     return formatted_text
+
 
 # # Example usage
 # if __name__ == "__main__":
