@@ -226,7 +226,6 @@ def aggregator_ag(s: str) -> str:
         system_prompt=agent_agregator,
         model_name=model_name,
         max_loops=1,
-        interactive=True,
         streaming_on=False,
     )
     result = Aggregator_agent.run(user_input+s)
@@ -240,7 +239,6 @@ def query_gen(s: str) -> str:
         system_prompt=query_generator,
         model_name=model_name,
         max_loops=1,
-        interactive=True,
         streaming_on=False,
     )
     result = Query_Generator_Agent.run(s)
@@ -265,7 +263,6 @@ Deep_Research_Agent = Agent(
     system_prompt=deep_research,
     model_name=model_name,
     max_loops=1,
-    interactive=True,
     streaming_on=False,
     tools=[query_gen]
 )
