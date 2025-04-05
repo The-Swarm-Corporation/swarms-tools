@@ -78,9 +78,13 @@ async def jupiter_fetch_token_by_mint_address_async(
 
 
 @async_to_sync
-async def jupiter_fetch_token_by_mint_address(mint_address: str) -> Dict:
+async def jupiter_fetch_token_by_mint_address(
+    mint_address: str,
+) -> Dict:
     """Synchronous wrapper for fetch_token_by_mint_address_async."""
-    return await jupiter_fetch_token_by_mint_address_async(mint_address)
+    return await jupiter_fetch_token_by_mint_address_async(
+        mint_address
+    )
 
 
 async def jupiter_fetch_tradable_tokens_async() -> List[Dict]:

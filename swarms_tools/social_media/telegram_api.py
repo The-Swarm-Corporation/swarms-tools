@@ -73,7 +73,9 @@ async def telegram_process_message(update: Update) -> str:
     return cleaned_message
 
 
-async def telegram_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def telegram_start(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+):
     """Handle /start command - only works in DMs"""
     if update.message.chat.type != "private":
         return
@@ -83,7 +85,9 @@ async def telegram_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"Start command from user {update.effective_user.id}")
 
 
-async def telegram_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def telegram_help(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+):
     """Handle /help command - only works in DMs"""
     if update.message.chat.type != "private":
         return
@@ -106,8 +110,9 @@ async def telegram_handle_message(
 ):
     """Handle incoming messages - works in DMs and when mentioned in groups"""
     # Check if it's a DM or mention
-    if update.message.chat.type != "private" and not telegram_check_mention(
-        update
+    if (
+        update.message.chat.type != "private"
+        and not telegram_check_mention(update)
     ):
         return
 
@@ -149,7 +154,9 @@ def telegram_dm_or_tag_api(response: str):
         application = ApplicationBuilder().token(token).build()
 
         # Add handlers
-        application.add_handler(CommandHandler("start", telegram_start))
+        application.add_handler(
+            CommandHandler("start", telegram_start)
+        )
         application.add_handler(CommandHandler("help", telegram_help))
         application.add_handler(
             MessageHandler(
