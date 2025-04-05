@@ -7,10 +7,13 @@ except ImportError:
     print("Installing serpapi...")
     import subprocess
     import sys
-    subprocess.run([sys.executable, "-m", "pip", "install", "serpapi"])
+
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "serpapi"]
+    )
     from serpapi import GoogleSearch
-    
-    
+
+
 from dotenv import load_dotenv
 from rich.console import Console
 

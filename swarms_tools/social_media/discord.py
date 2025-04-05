@@ -1,239 +1,209 @@
-import logging
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Optional, Union
-
+import asyncio
 import discord
 from discord.ext import commands
+from discord import ui, Interaction
+from loguru import logger
+from typing import Optional
+from swarms import Agent
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# --------------------------
+# Agent Initialization
+# --------------------------
+# default_agent: Agent = Agent(
+#     agent_name="Stock-Analysis-Agent",
+#     model_name="gpt-4o-mini",
+#     max_loops="auto",
+#     interactive=True,
+#     streaming_on=True,
+# )
+
+# --------------------------
+# Discord Bot Setup
+# --------------------------
+BOT_PREFIX = "!"
+bot: commands.Bot = commands.Bot(command_prefix=BOT_PREFIX)
 
 
-class DiscordMessenger:
+@bot.event
+async def on_ready() -> None:
     """
-    A comprehensive Discord messaging utility class that handles various Discord messaging operations.
+    Event handler called when the bot is ready.
+    Logs the bot's username and ID.
+    """
+    logger.info(f"Logged in as {bot.user.name} (ID: {bot.user.id})")
 
-    Attributes:
-        bot (commands.Bot): The Discord bot instance
-        token (str): Discord bot token
-        default_channel_id (Optional[int]): Default channel ID for sending messages
+
+async def send_message(channel_id: int, message: str) -> None:
+    """
+    Sends a message to a Discord channel specified by channel_id.
+
+    Args:
+        channel_id (int): The target Discord channel ID.
+        message (str): The message content to be sent.
+    """
+    channel: Optional[discord.TextChannel] = bot.get_channel(
+        channel_id
+    )
+    if channel is None:
+        logger.error(f"Channel with ID {channel_id} not found.")
+        return
+
+    try:
+        await channel.send(message)
+        logger.info(
+            f"Sent message to channel {channel_id}: {message}"
+        )
+    except Exception as exc:
+        logger.error(
+            f"Failed to send message to channel {channel_id}: {exc}"
+        )
+
+
+@bot.command(name="send")
+async def send(
+    ctx: commands.Context, channel_id: int, *, message: str
+) -> None:
+    """
+    Bot command to send a message to a specific channel.
+    Usage:
+        !send <channel_id> <message>
+
+    Args:
+        ctx (commands.Context): The command context.
+        channel_id (int): The Discord channel ID.
+        message (str): The message to be sent.
+    """
+    await send_message(channel_id, message)
+    await ctx.send(f"Message sent to channel ID {channel_id}.")
+
+
+# --------------------------
+# Auto Reply Functionality
+# --------------------------
+@bot.event
+async def on_message(message: discord.Message) -> None:
+    """
+    Auto-replies to messages containing specific keywords.
+    Currently, if a message contains 'hello', the bot replies with 'Hi there!'.
+
+    Args:
+        message (discord.Message): The incoming message.
+    """
+    # Ignore messages sent by the bot itself.
+    if message.author == bot.user:
+        return
+
+    # Example auto-response for "hello"
+    if "hello" in message.content.lower():
+        try:
+            await message.channel.send("Hi there!")
+            logger.info(
+                f"Auto-responded to {message.author} for greeting: {message.content}"
+            )
+        except Exception as exc:
+            logger.error(f"Error sending auto-response: {exc}")
+
+    # Process other commands after auto-replying.
+    await bot.process_commands(message)
+
+
+# --------------------------
+# Agent Button UI Component
+# --------------------------
+class AgentButtonView(ui.View):
+    """
+    A Discord UI View containing a button that triggers an agent query.
     """
 
     def __init__(
-        self, token: str, default_channel_id: Optional[int] = None
+        self, agent: Agent, *, timeout: Optional[float] = 180
     ):
         """
-        Initialize the Discord messenger.
+        Initializes the view with a given agent instance.
 
         Args:
-            token (str): Discord bot token
-            default_channel_id (Optional[int]): Default channel ID for sending messages
+            agent (Agent): The agent instance to use for queries.
+            timeout (Optional[float]): The timeout duration for the view.
         """
-        intents = discord.Intents.default()
-        intents.message_content = True
-        intents.members = True
+        super().__init__(timeout=timeout)
+        self.agent = agent
 
-        self.bot = commands.Bot(command_prefix="!", intents=intents)
-        self.token = token
-        self.default_channel_id = default_channel_id
-
-        # Register event handlers
-        self.setup_event_handlers()
-
-    def setup_event_handlers(self):
-        """Set up event handlers for the Discord bot."""
-
-        @self.bot.event
-        async def on_ready():
-            """Handler for when the bot is ready and connected."""
-            logger.info(f"Bot connected as {self.bot.user.name}")
-
-        @self.bot.event
-        async def on_message(message: discord.Message):
-            """Handler for incoming messages."""
-            if message.author == self.bot.user:
-                return
-            await self.bot.process_commands(message)
-
-    async def send_message(
-        self,
-        content: str,
-        channel_id: Optional[int] = None,
-        embed: Optional[discord.Embed] = None,
-        file_path: Optional[Union[str, Path]] = None,
-    ) -> Optional[discord.Message]:
+    @ui.button(
+        label="Run Agent Query",
+        style=discord.ButtonStyle.primary,
+        custom_id="agent_button",
+    )
+    async def run_agent(
+        self, button: ui.Button, interaction: Interaction
+    ) -> None:
         """
-        Send a message to a specified channel.
+        Callback for the Agent Query button.
+        Executes the agent's run method in a separate thread and sends the response.
 
         Args:
-            content (str): Message content
-            channel_id (Optional[int]): Channel ID to send message to
-            embed (Optional[discord.Embed]): Embed to send
-            file_path (Optional[Union[str, Path]]): Path to file to upload
-
-        Returns:
-            Optional[discord.Message]: The sent message object if successful
-
-        Raises:
-            ValueError: If neither default_channel_id nor channel_id is provided
-            FileNotFoundError: If file_path is provided but file doesn't exist
+            button (ui.Button): The button that was clicked.
+            interaction (Interaction): The interaction context.
         """
-        channel_id = channel_id or self.default_channel_id
-        if not channel_id:
-            raise ValueError("No channel ID provided")
+        await interaction.response.defer()  # Acknowledge the interaction
 
-        channel = self.bot.get_channel(channel_id)
-        if not channel:
-            logger.error(
-                f"Could not find channel with ID {channel_id}"
-            )
-            return None
+        query: str = (
+            "What is the current market trend for tech stocks?"
+        )
+        logger.info(
+            f"Received agent button click. Running query: {query}"
+        )
 
         try:
-            if file_path:
-                file_path = Path(file_path)
-                if not file_path.exists():
-                    raise FileNotFoundError(
-                        f"File not found: {file_path}"
-                    )
-                with open(file_path, "rb") as f:
-                    file = discord.File(f)
-                    return await channel.send(
-                        content=content, embed=embed, file=file
-                    )
-            else:
-                return await channel.send(
-                    content=content, embed=embed
-                )
-        except Exception as e:
-            logger.error(f"Error sending message: {str(e)}")
-            return None
-
-    async def send_dm(
-        self,
-        user_id: int,
-        content: str,
-        embed: Optional[discord.Embed] = None,
-    ) -> Optional[discord.Message]:
-        """
-        Send a direct message to a user.
-
-        Args:
-            user_id (int): Discord user ID
-            content (str): Message content
-            embed (Optional[discord.Embed]): Embed to send
-
-        Returns:
-            Optional[discord.Message]: The sent message object if successful
-        """
-        try:
-            user = await self.bot.fetch_user(user_id)
-            return await user.send(content=content, embed=embed)
-        except Exception as e:
-            logger.error(
-                f"Error sending DM to user {user_id}: {str(e)}"
+            # Run the agent query in a separate thread to avoid blocking the event loop.
+            response: str = await asyncio.to_thread(
+                self.agent.run, query
             )
-            return None
+            logger.info("Agent query executed successfully.")
+        except Exception as exc:
+            response = f"Error running agent query: {exc}"
+            logger.error(response)
 
-    async def send_embed(
-        self,
-        title: str,
-        description: str,
-        channel_id: Optional[int] = None,
-        color: Optional[discord.Color] = None,
-        fields: Optional[List[Dict[str, str]]] = None,
-        thumbnail_url: Optional[str] = None,
-        image_url: Optional[str] = None,
-    ) -> Optional[discord.Message]:
-        """
-        Send an embedded message.
+        # Send the agent's response back to the user.
+        await interaction.followup.send(response)
 
-        Args:
-            title (str): Embed title
-            description (str): Embed description
-            channel_id (Optional[int]): Channel ID to send message to
-            color (Optional[discord.Color]): Embed color
-            fields (Optional[List[Dict[str, str]]]): List of field dicts with name and value
-            thumbnail_url (Optional[str]): URL for embed thumbnail
-            image_url (Optional[str]): URL for embed image
 
-        Returns:
-            Optional[discord.Message]: The sent message object if successful
-        """
-        embed = discord.Embed(
-            title=title,
-            description=description,
-            color=color or discord.Color.blue(),
-            timestamp=datetime.utcnow(),
-        )
+@bot.command(name="agent_button")
+async def agent_button(
+    ctx: commands.Context, agent: Optional[Agent] = None
+) -> None:
+    """
+    Sends a message with an embedded button to run an agent query.
+    Users can click the button to trigger the agent.
 
-        if fields:
-            for field in fields:
-                embed.add_field(
-                    name=field["name"],
-                    value=field["value"],
-                    inline=field.get("inline", True),
-                )
+    Args:
+        ctx (commands.Context): The command context.
+        agent (Optional[Agent]): An optional agent instance to use. If not provided, defaults to the pre-defined agent.
+    """
+    # Use provided agent or default_agent if none is provided.
+    view = AgentButtonView(agent)
+    await ctx.send(
+        "Click the button below to run the agent query:", view=view
+    )
 
-        if thumbnail_url:
-            embed.set_thumbnail(url=thumbnail_url)
-        if image_url:
-            embed.set_image(url=image_url)
 
-        return await self.send_message(
-            content="", channel_id=channel_id, embed=embed
-        )
+def run_discord_bot(token: str) -> None:
+    """
+    Starts the Discord bot with the provided token.
 
-    async def mention_user(
-        self,
-        user_id: int,
-        message: str,
-        channel_id: Optional[int] = None,
-    ) -> Optional[discord.Message]:
-        """
-        Mention a user in a message.
+    Args:
+        token (str): The Discord bot token.
+    """
+    logger.info("Starting Discord bot...")
+    bot.run(token)
 
-        Args:
-            user_id (int): Discord user ID to mention
-            message (str): Message content
-            channel_id (Optional[int]): Channel ID to send message to
 
-        Returns:
-            Optional[discord.Message]: The sent message object if successful
-        """
-        content = f"<@{user_id}> {message}"
-        return await self.send_message(
-            content=content, channel_id=channel_id
-        )
+# if __name__ == "__main__":
+#     # Retrieve the Discord bot token from the environment for security.
+#     DISCORD_BOT_TOKEN: Optional[str] = os.getenv("DISCORD_BOT_TOKEN")
+#     if not DISCORD_BOT_TOKEN:
+#         logger.error(
+#             "DISCORD_BOT_TOKEN environment variable not found."
+#         )
+#         exit(1)
 
-    async def mention_role(
-        self,
-        role_id: int,
-        message: str,
-        channel_id: Optional[int] = None,
-    ) -> Optional[discord.Message]:
-        """
-        Mention a role in a message.
-
-        Args:
-            role_id (int): Discord role ID to mention
-            message (str): Message content
-            channel_id (Optional[int]): Channel ID to send message to
-
-        Returns:
-            Optional[discord.Message]: The sent message object if successful
-        """
-        content = f"<@&{role_id}> {message}"
-        return await self.send_message(
-            content=content, channel_id=channel_id
-        )
-
-    def run(self):
-        """Run the Discord bot."""
-        self.bot.run(self.token)
-
-    async def close(self):
-        """Close the Discord bot connection."""
-        await self.bot.close()
+#     run_discord_bot(DISCORD_BOT_TOKEN)

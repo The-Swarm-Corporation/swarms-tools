@@ -30,7 +30,7 @@ except ImportError as error:
     logger.info("Telegram API installed successfully.")
 
 
-def check_mention(update: Update) -> bool:
+def telegram_check_mention(update: Update) -> bool:
     """Check if the bot was mentioned in the message"""
     message = update.message
     bot_username = update.get_bot().username
@@ -58,7 +58,7 @@ def check_mention(update: Update) -> bool:
     return False
 
 
-async def process_message(update: Update) -> str:
+async def telegram_process_message(update: Update) -> str:
     """Clean up message by removing bot mention"""
     message = update.message.text
     bot_username = update.get_bot().username
@@ -73,7 +73,7 @@ async def process_message(update: Update) -> str:
     return cleaned_message
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def telegram_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command - only works in DMs"""
     if update.message.chat.type != "private":
         return
@@ -83,7 +83,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"Start command from user {update.effective_user.id}")
 
 
-async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def telegram_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /help command - only works in DMs"""
     if update.message.chat.type != "private":
         return
@@ -99,14 +99,14 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"Help command from user {update.effective_user.id}")
 
 
-async def handle_message(
+async def telegram_handle_message(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
     response: str = None,
 ):
     """Handle incoming messages - works in DMs and when mentioned in groups"""
     # Check if it's a DM or mention
-    if update.message.chat.type != "private" and not check_mention(
+    if update.message.chat.type != "private" and not telegram_check_mention(
         update
     ):
         return
@@ -118,7 +118,7 @@ async def handle_message(
 
     try:
         # Clean up the message
-        cleaned_message = await process_message(update)
+        cleaned_message = await telegram_process_message(update)
         if not cleaned_message:
             return
 
@@ -149,13 +149,13 @@ def telegram_dm_or_tag_api(response: str):
         application = ApplicationBuilder().token(token).build()
 
         # Add handlers
-        application.add_handler(CommandHandler("start", start))
-        application.add_handler(CommandHandler("help", help))
+        application.add_handler(CommandHandler("start", telegram_start))
+        application.add_handler(CommandHandler("help", telegram_help))
         application.add_handler(
             MessageHandler(
                 filters.TEXT & ~filters.COMMAND,
                 response,
-                handle_message,
+                telegram_handle_message,
             )
         )
 

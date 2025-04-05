@@ -12,6 +12,7 @@ __pycache__/
 .Python
 build/
 agent_workspace/
+secrets
 agent_workspace
 develop-eggs/
 dist/
