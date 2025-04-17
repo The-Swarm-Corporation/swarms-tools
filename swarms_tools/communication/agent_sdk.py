@@ -96,7 +96,7 @@ class AgentSDKManager:
         if not settings:
             settings = self.create_agent_settings()
 
-        user_owner = self.agent.add_account(private_key)
+        self.agent.add_account(private_key)
         result = self.agent.create_and_register_agent(
             transmitter=transmitter, nonce=nonce, settings=settings
         )
@@ -115,7 +115,7 @@ class AgentSDKManager:
         if not agent_contract:
             agent_contract = self.AGENT_CONTRACT
 
-        user_owner = self.agent.add_account(private_key)
+        self.agent.add_account(private_key)
         result = self.agent.verify(
             transmitter=transmitter,
             nonce=nonce,

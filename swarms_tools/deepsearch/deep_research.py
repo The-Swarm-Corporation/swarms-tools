@@ -1,9 +1,7 @@
 import json
-import re
 from typing import List
 from swarms import Agent
 from dotenv import load_dotenv
-import os 
 
 # from swarms_tools.search.exa_search import exa_search as web_search
 # from swarms_tools.search.searp_search import serpapi_search as web_search
@@ -201,6 +199,7 @@ Report Structure (FORMAT-SPECIFIC - adapt headings/sections as needed):
 For citation, use bracketed numbers like [1], [2], [3] for IEEE, or (Author, Year) for APA style citations within the text, and then create the full references section accordingly. If no specific citation style is dictated by the format (e.g., for 'Generalized Markdown'), use a consistent style (like numbered footnotes or simple bracketed numbers) for clarity.
 """
 
+
 def extract_queries(json_str: str) -> List[str]:
     """Extract queries from the JSON string output, with improved error handling."""
     try:
@@ -212,11 +211,14 @@ def extract_queries(json_str: str) -> List[str]:
             raise ValueError(f"Unexpected JSON structure: {json_str}")
 
     except json.JSONDecodeError as e:
-        print(f"[red]JSON Decode Error: {e} - Input: {json_str}[/red]")
-        raise 
+        print(
+            f"[red]JSON Decode Error: {e} - Input: {json_str}[/red]"
+        )
+        raise
     except Exception as e:
         print(f"[red]Error extracting queries: {str(e)}[/red]")
         raise
+
 
 def aggregator_ag(s: str) -> str:
     """Aggregate search results into a final formatted report."""
@@ -228,8 +230,9 @@ def aggregator_ag(s: str) -> str:
         max_loops=1,
         streaming_on=False,
     )
-    result = Aggregator_agent.run(user_input+s)
+    result = Aggregator_agent.run(user_input + s)
     return result
+
 
 def query_gen(s: str) -> str:
     """Generate domain/format-specific queries, perform searches, and aggregate results."""
@@ -248,14 +251,17 @@ def query_gen(s: str) -> str:
     for query in queries:
         try:
             sr = web_search(query)
-            if sr: 
+            if sr:
                 search_results.append(sr)
         except Exception as e:
-            print(f"[red]Error during web search for query '{query}': {e}[/red]")
+            print(
+                f"[red]Error during web search for query '{query}': {e}[/red]"
+            )
 
     aggregated_search = "\n".join(search_results)
-    final_result = aggregator_ag(aggregated_search)  
+    final_result = aggregator_ag(aggregated_search)
     return final_result
+
 
 model_name = "gpt-4o-mini"
 Deep_Research_Agent = Agent(
@@ -264,13 +270,17 @@ Deep_Research_Agent = Agent(
     model_name=model_name,
     max_loops=1,
     streaming_on=False,
-    tools=[query_gen]
+    tools=[query_gen],
 )
 
 if __name__ == "__main__":
     research_topic = input("Enter your research topic: ")
-    research_domain = input("Enter the research domain (e.g., Academic, Finance, Legal): ")
-    report_format = input("Enter the desired report format (e.g., IEEE, APA, Markdown): ")
+    research_domain = input(
+        "Enter the research domain (e.g., Academic, Finance, Legal): "
+    )
+    report_format = input(
+        "Enter the desired report format (e.g., IEEE, APA, Markdown): "
+    )
 
     user_input = f"Research Topic: {research_topic}\nResearch Domain: {research_domain}\nReport Format: {report_format}"
     result = Deep_Research_Agent.run(user_input)

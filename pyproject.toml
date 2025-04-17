@@ -28,6 +28,7 @@ loguru = "*"
 httpx = "*"
 backoff = "*"
 requests = "*"
+fastmcp = "*"
 
 [tool.poetry.group.lint.dependencies]
 ruff = "^0.1.6"
