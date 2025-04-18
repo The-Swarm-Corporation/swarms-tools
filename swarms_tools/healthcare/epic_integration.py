@@ -32,19 +32,19 @@ class EpicConfigurationError(EpicAPIError):
 class EpicConfig(BaseModel):
     """Configuration model for Epic integration"""
 
-    fhir_base_url: HttpUrl = Field(
+    fhir_base_url: Optional[HttpUrl] = Field(
         default="https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4"
     )
-    oauth_token_url: HttpUrl = Field(
+    oauth_token_url: Optional[HttpUrl] = Field(
         default="https://epic.oauth.com/token"
     )
-    client_id: str
-    client_secret: str
-    scope: str = Field(default="patient/*.read")
+    client_id: Optional[str] = None
+    client_secret: Optional[str] = None
+    scope: Optional[str] = Field(default="patient/*.read")
 
     @validator("client_id", "client_secret")
-    def validate_credentials(cls, v: str) -> str:
-        if not v or len(v.strip()) == 0:
+    def validate_credentials(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and len(v.strip()) == 0:
             raise EpicConfigurationError(
                 "Credentials cannot be empty"
             )
@@ -52,26 +52,26 @@ class EpicConfig(BaseModel):
 
 
 class OAuthToken(BaseModel):
-    access_token: str
-    token_type: str
-    expires_in: int
+    access_token: Optional[str] = None
+    token_type: Optional[str] = None
+    expires_in: Optional[int] = None
 
 
 class Patient(BaseModel):
-    id: str
-    name: List[Dict[str, Any]]
-    birthDate: Optional[str]
-    gender: Optional[str]
-    active: Optional[bool]
+    id: Optional[str] = None
+    name: Optional[List[Dict[str, Any]]] = None
+    birthDate: Optional[str] = None
+    gender: Optional[str] = None
+    active: Optional[bool] = None
 
 
 class Observation(BaseModel):
-    id: str
-    status: str
-    code: Dict[str, Any]
-    subject: Dict[str, Any]
-    effectiveDateTime: Optional[str]
-    valueQuantity: Optional[Dict[str, Any]]
+    id: Optional[str] = None
+    status: Optional[str] = None
+    code: Optional[Dict[str, Any]] = None
+    subject: Optional[Dict[str, Any]] = None
+    effectiveDateTime: Optional[str] = None
+    valueQuantity: Optional[Dict[str, Any]] = None
 
 
 # Load configuration

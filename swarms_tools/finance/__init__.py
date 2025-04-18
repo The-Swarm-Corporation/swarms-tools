@@ -35,6 +35,9 @@ from swarms_tools.finance.jupiter_tools import (
     jupiter_get_token_prices,
     jupiter_fetch_all_tokens,
 )
+from swarms_tools.finance.unified_solana_coin_api import (
+    fetch_solana_coin_info,
+)
 
 __all__ = [
     "fetch_stock_news",
@@ -62,4 +65,5 @@ __all__ = [
     "jupiter_fetch_tradable_tokens",
     "jupiter_get_token_prices",
     "jupiter_fetch_all_tokens",
+    "fetch_solana_coin_info",
 ]
