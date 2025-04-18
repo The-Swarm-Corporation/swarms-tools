@@ -33,6 +33,7 @@ swarms-tools/
 │   │   ├── htx_tool.py
 │   │   ├── eodh_api.py
 │   │   └── coingecko_tool.py
+│   │   └── defillama_mcp_tools.py
 │   ├── social_media/
 │   │   ├── telegram_tool.py
 │   ├── utilities/
@@ -61,6 +62,7 @@ Explore our diverse range of financial tools, designed to streamline your operat
 | `coin_gecko_coin_api`     | `coin_gecko_coin_api`    | Fetches cryptocurrency data from CoinGecko, including market and price information. |
 | `helius_api_tool`         | `helius_api_tool`        | Retrieves blockchain account, transaction, or token data using the Helius API. |
 | `okx_api_tool`            | `okx_api_tool`           | Fetches detailed cryptocurrency data for coins from the OKX exchange.         |
+| `defillama_mcp_tools`            | `get_protocol_tvl,get_chain_tvl,get_token_prices,make_request`           | Provides access to DeFi Llama API for retrieving protocol TVL, chain TVL, and token price data across DeFi ecosystems. |
 
 
 ### Financial Data Retrieval
@@ -91,6 +93,16 @@ from swarms_tools import coin_gecko_coin_api
 # Fetch live data for Bitcoin
 crypto_data = coin_gecko_coin_api("bitcoin")
 print(crypto_data)
+```
+
+
+#### Example 4: Get Defi protocol TVL
+``` python
+from swarms_tools import get_protocol_tvl
+
+# Fetching protocol TVL for uniswap-v3
+protocol_tvl = await get_protocol_tvl("uniswap-v3")
+print(protocol_tvl)
 ```
 
 ### Social Media Automation
