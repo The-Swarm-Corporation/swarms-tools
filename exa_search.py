@@ -118,8 +118,8 @@ def exa_search(query: str, **kwargs: Any) -> str:
         return error_msg
 
 
-# if __name__ == "__main__":
-#     console.print("\n[bold]Example Exa.ai Search:[/bold]")
-#     results = exa_search("Deepseek news")
-#     console.print("\n[bold green]Formatted Exa Results:[/bold green]")
-#     console.print(results)
+if __name__ == "__main__":
+    console.print("\n[bold]Example Exa.ai Search:[/bold]")
+    results = exa_search("Deepseek news")
+    console.print("\n[bold green]Formatted Exa Results:[/bold green]")
+    console.print(results)

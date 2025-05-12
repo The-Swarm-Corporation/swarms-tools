@@ -101,30 +101,30 @@ async def fetch_token_data(
         )
 
 
-# Example usage
-if __name__ == "__main__":
-    import asyncio
+# # Example usage
+# if __name__ == "__main__":
+#     import asyncio
 
-    async def main():
-        try:
-            # Using WETH token address as an example
-            token_address = (
-                "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"  # WETH
-            )
-            network = "eth"  # Changed to 'eth' instead of 'ethereum'
+#     async def main():
+#         try:
+#             # Using WETH token address as an example
+#             token_address = (
+#                 "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"  # WETH
+#             )
+#             network = "eth"  # Changed to 'eth' instead of 'ethereum'
 
-            logger.info("Starting token data fetch...")
-            data = await fetch_token_data(token_address, network)
-            logger.success("Successfully retrieved token data:")
-            print("\nToken Data:")
-            for key, value in data.items():
-                print(f"{key}: {value}")
+#             logger.info("Starting token data fetch...")
+#             data = await fetch_token_data(token_address, network)
+#             logger.success("Successfully retrieved token data:")
+#             print("\nToken Data:")
+#             for key, value in data.items():
+#                 print(f"{key}: {value}")
 
-        except GeckoTerminalAPIError as e:
-            logger.error(f"API Error: {e}")
-        except httpx.HTTPError as e:
-            logger.error(f"HTTP Error: {e}")
-        except Exception as e:
-            logger.error(f"Unexpected error: {e}")
+#         except GeckoTerminalAPIError as e:
+#             logger.error(f"API Error: {e}")
+#         except httpx.HTTPError as e:
+#             logger.error(f"HTTP Error: {e}")
+#         except Exception as e:
+#             logger.error(f"Unexpected error: {e}")
 
-    asyncio.run(main())
+#     asyncio.run(main())

@@ -7,10 +7,11 @@ except ImportError:
     print("Installing tavily...")
     import subprocess
     import sys
+
     subprocess.run([sys.executable, "-m", "pip", "install", "tavily"])
     from tavily import TavilyClient
-    
-    
+
+
 from dotenv import load_dotenv
 from rich.console import Console
 

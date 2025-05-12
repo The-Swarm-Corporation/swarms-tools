@@ -25,6 +25,19 @@ from swarms_tools.finance.check_solana_address import (
     check_solana_balance,
     check_multiple_wallets,
 )
+from swarms_tools.finance.jupiter_tools import (
+    jupiter_fetch_all_tokens_async,
+    jupiter_get_token_prices_async,
+    jupiter_fetch_token_by_mint_address_async,
+    jupiter_fetch_tradable_tokens_async,
+    jupiter_fetch_token_by_mint_address,
+    jupiter_fetch_tradable_tokens,
+    jupiter_get_token_prices,
+    jupiter_fetch_all_tokens,
+)
+from swarms_tools.finance.unified_solana_coin_api import (
+    fetch_solana_coin_info,
+)
 
 __all__ = [
     "fetch_stock_news",
@@ -44,4 +57,13 @@ __all__ = [
     "fetch_macro_financial_data",
     "check_solana_balance",
     "check_multiple_wallets",
+    "jupiter_fetch_all_tokens_async",
+    "jupiter_get_token_prices_async",
+    "jupiter_fetch_token_by_mint_address_async",
+    "jupiter_fetch_tradable_tokens_async",
+    "jupiter_fetch_token_by_mint_address",
+    "jupiter_fetch_tradable_tokens",
+    "jupiter_get_token_prices",
+    "jupiter_fetch_all_tokens",
+    "fetch_solana_coin_info",
 ]
