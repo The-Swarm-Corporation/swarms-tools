@@ -1,19 +1,7 @@
 import os
-from typing import Dict, Any
+from typing import Any, Dict
 
-try:
-    from serpapi import GoogleSearch
-except ImportError:
-    print("Installing serpapi...")
-    import subprocess
-    import sys
-
-    subprocess.run(
-        [sys.executable, "-m", "pip", "install", "serpapi"]
-    )
-    from serpapi import GoogleSearch
-
-
+import httpx
 from dotenv import load_dotenv
 from rich.console import Console
 
@@ -59,7 +47,7 @@ def format_serpapi_results(json_data: Dict[str, Any]) -> str:
 
 def serpapi_search(query: str) -> str:
     """
-    Performs a web search using the SerpAPI Google Search API
+    Performs a web search using the SerpAPI Google Search API via HTTPX.
 
     Args:
         query: Search query string
@@ -67,8 +55,14 @@ def serpapi_search(query: str) -> str:
     Returns:
         Formatted search results string
     """
+    api_key = os.getenv("SERPAPI_API_KEY")
+    if not api_key:
+        raise ValueError(
+            "SERPAPI_API_KEY not found in environment variables."
+        )
+
     params = {
-        "api_key": os.getenv("SERPAPI_API_KEY"),
+        "api_key": api_key,
         "engine": "google",
         "q": query,
         "location": "Austin, Texas, United States",
@@ -77,8 +71,12 @@ def serpapi_search(query: str) -> str:
         "hl": "en",
     }
 
-    client = GoogleSearch(params)
-    results = client.get_dict()
+    url = "https://serpapi.com/search"
+
+    with httpx.Client(timeout=30.0) as client:
+        response = client.get(url, params=params)
+        response.raise_for_status()
+        results = response.json()
 
     # Print raw JSON response
     console.print("\n[bold]SerpAPI Raw Response:[/bold]")

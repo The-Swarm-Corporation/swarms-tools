@@ -1,5 +1,5 @@
 import os
-import requests
+import httpx
 from loguru import logger
 from dotenv import load_dotenv
 
@@ -34,12 +34,13 @@ class SynthesiaAPI:
             str: The response text from the API.
         """
         try:
-            response = requests.post(
+            response = httpx.post(
                 self.url, json=payload, headers=self.headers
             )
+            response.raise_for_status()
             logger.info("Video creation request sent successfully.")
             return response.text
-        except requests.exceptions.RequestException as e:
+        except httpx.RequestException as e:
             logger.error(f"Failed to create video: {e}")
             return "Failed to create video"
 

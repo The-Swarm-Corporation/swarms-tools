@@ -1,4 +1,4 @@
-import requests
+import httpx
 import os
 from swarms_tools.utils.formatted_string import (
     format_object_to_string,
@@ -38,19 +38,19 @@ class CookieFunAPIClient:
             dict: JSON response containing KOL data.
 
         Raises:
-            requests.HTTPError: If the API request fails.
+            httpx.HTTPError: If the API request fails.
         """
         try:
             headers = {"x-api-key": self.api_key}
             logger.info(f"Fetching {limit} KOLs from Cookie.fun API")
-            response = requests.get(
+            response = httpx.get(
                 f"{self.base_url}/kols",
                 headers=headers,
                 params={"limit": limit},
             )
             response.raise_for_status()
             return response.json()
-        except requests.HTTPError as e:
+        except httpx.HTTPError as e:
             logger.error(
                 f"HTTP error occurred while fetching KOLs: {e}"
             )
@@ -73,7 +73,7 @@ def get_kols_cookie_fun(limit: int = 50):
         str: Formatted string containing KOL data.
 
     Raises:
-        requests.HTTPError: If the API request fails.
+        httpx.HTTPError: If the API request fails.
     """
     try:
         client = CookieFunAPIClient()

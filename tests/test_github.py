@@ -3,7 +3,7 @@ from loguru import logger
 
 def test_get_user_info():
     try:
-        from swarms_tools.tech.github import get_user_info
+        from swarms_tools.devs.github import get_user_info
 
         username = "octocat"
         logger.info(
@@ -18,7 +18,7 @@ def test_get_user_info():
 
 def test_list_repo_issues():
     try:
-        from swarms_tools.tech.github import list_repo_issues
+        from swarms_tools.devs.github import list_repo_issues
 
         owner, repo = "octocat", "Hello-World"
         logger.info(f"Testing list_repo_issues for {owner}/{repo}")
@@ -31,7 +31,7 @@ def test_list_repo_issues():
 
 def test_create_issue():
     try:
-        from swarms_tools.tech.github import create_issue
+        from swarms_tools.devs.github import create_issue
 
         owner, repo = "octocat", "Hello-World"
         title = "Test Issue"
@@ -49,7 +49,7 @@ def test_create_issue():
 
 def test_list_open_prs():
     try:
-        from swarms_tools.tech.github import list_open_prs
+        from swarms_tools.devs.github import list_open_prs
 
         owner, repo = "octocat", "Hello-World"
         logger.info(f"Testing list_open_prs for {owner}/{repo}")
@@ -62,7 +62,7 @@ def test_list_open_prs():
 
 def test_get_repo_details():
     try:
-        from swarms_tools.tech.github import get_repo_details
+        from swarms_tools.devs.github import get_repo_details
 
         owner, repo = "octocat", "Hello-World"
         logger.info(f"Testing get_repo_details for {owner}/{repo}")
@@ -77,7 +77,7 @@ def test_get_repo_details():
 
 def test_close_issue():
     try:
-        from swarms_tools.tech.github import close_issue, create_issue
+        from swarms_tools.devs.github import close_issue, create_issue
 
         owner, repo = "octocat", "Hello-World"
         title = "Test Issue to Close"
@@ -95,7 +95,7 @@ def test_close_issue():
 
 def test_create_pull_request():
     try:
-        from swarms_tools.tech.github import create_pull_request
+        from swarms_tools.devs.github import create_pull_request
 
         owner, repo = "octocat", "Hello-World"
         title, head, base = "Test PR", "feature-branch", "main"
@@ -113,7 +113,7 @@ def test_create_pull_request():
 
 def test_merge_pull_request():
     try:
-        from swarms_tools.tech.github import (
+        from swarms_tools.devs.github import (
             merge_pull_request,
             create_pull_request,
         )
@@ -140,7 +140,7 @@ def test_merge_pull_request():
 
 def test_list_repo_collaborators():
     try:
-        from swarms_tools.tech.github import list_repo_collaborators
+        from swarms_tools.devs.github import list_repo_collaborators
 
         owner, repo = "octocat", "Hello-World"
         logger.info(
@@ -155,7 +155,7 @@ def test_list_repo_collaborators():
 
 def test_add_repo_collaborator():
     try:
-        from swarms_tools.tech.github import add_repo_collaborator
+        from swarms_tools.devs.github import add_repo_collaborator
 
         owner, repo = "octocat", "Hello-World"
         username = "test-collaborator"

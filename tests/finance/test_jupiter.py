@@ -1,6 +1,6 @@
 """Unit tests for the Jupiter Protocol API tools using custom test framework."""
 
-import json
+import orjson
 import asyncio
 import aiohttp
 from datetime import datetime
@@ -30,7 +30,9 @@ SAMPLE_TOKEN = {
     "decimals": 9,
     "name": "Wrapped SOL",
     "symbol": "SOL",
-    "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+    "logoURI": (
+        "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png"
+    ),
 }
 
 SAMPLE_PRICES = {
@@ -275,7 +277,7 @@ def run_all_tests():
     # Generate report
     report_path = "jupiter_test_report.json"
     with open(report_path, "w") as f:
-        json.dump(test_results, f, indent=2)
+        orjson.dump(test_results, f, option=orjson.OPT_INDENT_2)
 
     print("\nTest Summary:")
     print(f"Total Tests: {test_results['total_tests']}")

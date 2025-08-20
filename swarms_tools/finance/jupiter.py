@@ -1,8 +1,9 @@
-from typing import Dict, Any, Optional
-from loguru import logger
-import aiohttp
 import asyncio
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+import aiohttp
+from loguru import logger
 
 
 class JupiterAPI:
@@ -77,8 +78,10 @@ class JupiterAPI:
 
                 result = {
                     "data": {
-                        "price": float(data["outAmount"])
-                        / float(data["inAmount"]),
+                        "price": (
+                            float(data["outAmount"])
+                            / float(data["inAmount"])
+                        ),
                         "input_mint": input_mint,
                         "output_mint": output_mint,
                         "timestamp": datetime.utcnow().isoformat(),

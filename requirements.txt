@@ -1,5 +1,6 @@
-requests
+httpx
 loguru
 rich
 serpapi
 tavily
+orjson

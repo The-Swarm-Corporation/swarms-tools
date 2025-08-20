@@ -1,5 +1,5 @@
 import os
-import requests
+import httpx
 from typing import List, Dict
 from swarms_tools.utils.formatted_string import (
     format_object_to_string,
@@ -55,7 +55,7 @@ def fetch_web_articles_bing_api(
     headers = {"Ocp-Apim-Subscription-Key": subscription_key}
     params = {"q": query, "count": 4, "mkt": "en-US"}
 
-    response = requests.get(url, headers=headers, params=params)
+    response = httpx.get(url, headers=headers, params=params)
     response.raise_for_status()
     search_results = response.json()
 

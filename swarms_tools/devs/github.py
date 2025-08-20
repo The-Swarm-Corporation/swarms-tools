@@ -1,5 +1,5 @@
 import os
-import requests
+import httpx
 from dotenv import load_dotenv
 from loguru import logger
 from typing import Any, Dict, List, Optional
@@ -33,7 +33,7 @@ def get_user_info(username: str) -> Dict[str, Any]:
     """
     url = f"{GITHUB_API_URL}/users/{username}"
     logger.info(f"Fetching user info for {username}")
-    response = requests.get(url, headers=headers)
+    response = httpx.get(url, headers=headers)
     response.raise_for_status()
     return response.json()
 
@@ -55,7 +55,7 @@ def list_repo_issues(
     url = f"{GITHUB_API_URL}/repos/{owner}/{repo}/issues"
     params = {"state": state}
     logger.info(f"Listing {state} issues for {owner}/{repo}")
-    response = requests.get(url, headers=headers, params=params)
+    response = httpx.get(url, headers=headers, params=params)
     response.raise_for_status()
     return response.json()
 
@@ -85,7 +85,7 @@ def create_issue(
     logger.info(
         f"Creating issue in {owner}/{repo} with title: {title}"
     )
-    response = requests.post(url, headers=headers, json=payload)
+    response = httpx.post(url, headers=headers, json=payload)
     response.raise_for_status()
     return response.json()
 
@@ -103,7 +103,7 @@ def list_open_prs(owner: str, repo: str) -> List[Dict[str, Any]]:
     """
     url = f"{GITHUB_API_URL}/repos/{owner}/{repo}/pulls"
     logger.info(f"Listing open pull requests for {owner}/{repo}")
-    response = requests.get(url, headers=headers)
+    response = httpx.get(url, headers=headers)
     response.raise_for_status()
     return response.json()
 
@@ -121,7 +121,7 @@ def get_repo_details(owner: str, repo: str) -> Dict[str, Any]:
     """
     url = f"{GITHUB_API_URL}/repos/{owner}/{repo}"
     logger.info(f"Fetching details for repository {owner}/{repo}")
-    response = requests.get(url, headers=headers)
+    response = httpx.get(url, headers=headers)
     response.raise_for_status()
     return response.json()
 
@@ -145,7 +145,7 @@ def close_issue(
     )
     payload = {"state": "closed"}
     logger.info(f"Closing issue #{issue_number} in {owner}/{repo}")
-    response = requests.patch(url, headers=headers, json=payload)
+    response = httpx.patch(url, headers=headers, json=payload)
     response.raise_for_status()
     return response.json()
 
@@ -182,7 +182,7 @@ def create_pull_request(
     logger.info(
         f"Creating pull request in {owner}/{repo} from {head} to {base} with title: {title}"
     )
-    response = requests.post(url, headers=headers, json=payload)
+    response = httpx.post(url, headers=headers, json=payload)
     response.raise_for_status()
     return response.json()
 
@@ -205,7 +205,7 @@ def merge_pull_request(
     logger.info(
         f"Merging pull request #{pr_number} in {owner}/{repo}"
     )
-    response = requests.put(url, headers=headers)
+    response = httpx.put(url, headers=headers)
     response.raise_for_status()
     return response.json()
 
@@ -225,7 +225,7 @@ def list_repo_collaborators(
     """
     url = f"{GITHUB_API_URL}/repos/{owner}/{repo}/collaborators"
     logger.info(f"Listing collaborators for {owner}/{repo}")
-    response = requests.get(url, headers=headers)
+    response = httpx.get(url, headers=headers)
     response.raise_for_status()
     return response.json()
 
@@ -250,6 +250,6 @@ def add_repo_collaborator(
     logger.info(
         f"Adding {username} as a collaborator to {owner}/{repo} with permission: {permission}"
     )
-    response = requests.put(url, headers=headers, json=payload)
+    response = httpx.put(url, headers=headers, json=payload)
     response.raise_for_status()
     return response.json()

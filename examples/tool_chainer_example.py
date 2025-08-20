@@ -3,7 +3,6 @@ from loguru import logger
 
 from swarms_tools.structs import tool_chainer
 
-
 if __name__ == "__main__":
     logger.add("tool_chainer.log", rotation="500 MB", level="INFO")
 

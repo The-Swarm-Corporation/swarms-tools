@@ -1,4 +1,4 @@
-import requests
+import httpx
 import os
 
 
@@ -28,14 +28,14 @@ class SolanaWalletBalanceChecker:
         """
         url = "https://raw.githubusercontent.com/solana-labs/token-list/main/src/tokens/solana.tokenlist.json"
         try:
-            response = requests.get(url)
+            response = httpx.get(url)
             response.raise_for_status()
             token_list = response.json()["tokens"]
             return {
                 token["address"]: token["symbol"]
                 for token in token_list
             }
-        except requests.exceptions.RequestException as e:
+        except httpx.RequestException as e:
             print(f"Error fetching token list: {e}")
             return {}
 
@@ -51,10 +51,10 @@ class SolanaWalletBalanceChecker:
         """
         url = f"{self.base_url}{wallet_address}/balances?api-key={self.api_key}"
         try:
-            response = requests.get(url)
+            response = httpx.get(url)
             response.raise_for_status()  # Ensure the request was successful
             return response.json()
-        except requests.exceptions.RequestException as e:
+        except httpx.RequestException as e:
             print(f"Error fetching wallet balances: {e}")
             return None
 

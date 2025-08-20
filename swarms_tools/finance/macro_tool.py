@@ -1,4 +1,4 @@
-import requests
+import httpx
 import yfinance as yf
 
 
@@ -42,19 +42,15 @@ def fetch_macro_financial_data():
             exchange_rate_url = (
                 "https://api.exchangerate-api.com/v4/latest/USD"
             )
-            response = requests.get(exchange_rate_url)
-            if response.status_code == 200:
-                exchange_data = response.json()
-                data["EUR/USD Exchange Rate"] = exchange_data.get(
-                    "rates", {}
-                ).get("EUR", "N/A")
-                data["GBP/USD Exchange Rate"] = exchange_data.get(
-                    "rates", {}
-                ).get("GBP", "N/A")
-            else:
-                data["Exchange Rates"] = (
-                    f"Error: {response.status_code}"
-                )
+            response = httpx.get(exchange_rate_url)
+            response.raise_for_status()
+            exchange_data = response.json()
+            data["EUR/USD Exchange Rate"] = exchange_data.get(
+                "rates", {}
+            ).get("EUR", "N/A")
+            data["GBP/USD Exchange Rate"] = exchange_data.get(
+                "rates", {}
+            ).get("GBP", "N/A")
         except Exception as ex:
             data["Exchange Rates"] = (
                 f"Error fetching exchange rates: {ex}"

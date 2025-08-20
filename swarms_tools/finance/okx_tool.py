@@ -1,6 +1,6 @@
 import os
+import httpx
 from typing import List, Dict, Any, Optional
-import requests
 from loguru import logger
 from swarms_tools.utils.formatted_string import (
     format_object_to_string,
@@ -38,7 +38,7 @@ class OKXAPI:
 
         Raises:
             ValueError: If the API response contains errors or the coin symbols are invalid.
-            requests.RequestException: If the API request fails.
+            httpx.RequestException: If the API request fails.
         """
         endpoint = f"{OKXAPI.BASE_URL}/market/tickers"
         params = {"instType": "SPOT"}
@@ -47,11 +47,9 @@ class OKXAPI:
         )
 
         try:
-            response = requests.get(
-                endpoint, params=params, timeout=10
-            )
+            response = httpx.get(endpoint, params=params)
             response.raise_for_status()
-        except requests.RequestException as e:
+        except httpx.RequestException as e:
             logger.error(
                 f"Failed to fetch coin data from OKX API: {e}"
             )

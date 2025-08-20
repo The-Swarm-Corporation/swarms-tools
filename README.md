@@ -376,6 +376,23 @@ Comprehensive documentation is available to guide developers and enterprises. Vi
 
 ---
 
+
+## Join The Swarms Community! 
+
+Join our community of thousands of agent engineers and researchers for technical support, cutting-edge updates, and exclusive access to world-class agent engineering insights!
+
+| Platform | Description | Link |
+|----------|-------------|------|
+| 💬 Discord | Live chat and community support | [Join Discord](https://discord.gg/EamjgSaEQf) |
+| 🐦 Twitter | Latest news and announcements | [@swarms_corp](https://twitter.com/swarms_corp) |
+| 📺 YouTube | Tutorials and demos | [Swarms Channel](https://www.youtube.com/channel/UC9yXyitkbU_WSy7bd_41SqQ) |
+| 📚 Documentation | Official documentation and guides | [docs.swarms.world](https://docs.swarms.world) |
+| 📝 Blog | Latest updates and technical articles | [Medium](https://medium.com/@kyeg) |
+| 👥 LinkedIn | Professional network and updates | [The Swarm Corporation](https://www.linkedin.com/company/the-swarm-corporation) |
+| 🎫 Events | Join our community events | [Sign up here](https://lu.ma/5p2jnc2v) |
+| 🚀 Onboarding Session | Get onboarded with Kye Gomez, creator and lead maintainer of Swarms | [Book Session](https://cal.com/swarms/swarms-onboarding-session) |
+
+
 ## 🛠 Contributing
 
 We welcome contributions from the global developer community. To contribute:
@@ -393,15 +410,5 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 ---
 
-## 🌠 Join the Future
-
-Explore the limitless possibilities of agent-based systems. Together, we can build a smarter, faster, and more interconnected world.
-
-**Visit us:** [Swarms Corporation](https://swarms.ai)  
-**Follow us:** [Twitter](https://twitter.com/swarms_corp)
-
----
-
 **"The future belongs to those who dare to automate it."**  
 **— The Swarms Corporation**
-

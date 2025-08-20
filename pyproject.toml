@@ -27,7 +27,7 @@ yfinance = "*"
 loguru = "*"
 httpx = "*"
 backoff = "*"
-requests = "*"
+orjson = "*"
 fastmcp = "*"
 
 [tool.poetry.group.lint.dependencies]

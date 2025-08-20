@@ -1,5 +1,6 @@
 import subprocess
 from typing import Any, Dict, List, Optional
+import httpx
 
 try:
     from web3 import Web3
@@ -8,7 +9,6 @@ except ImportError:
     from web3 import Web3
 
 from loguru import logger
-import requests
 
 RPC_URL = "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID"
 UNISWAP_SUBGRAPH_URL = (
@@ -50,7 +50,8 @@ class UniswapDataFetcher:
             Optional[Dict[str, Any]]: Pair data if found, otherwise None.
         """
         query = {
-            "query": """
+            "query": (
+                """
             query ($token0: String!, $token1: String!) {
                 pairs(where: {token0: $token0, token1: $token1}) {
                     id
@@ -61,7 +62,8 @@ class UniswapDataFetcher:
                     volumeToken1
                 }
             }
-            """,
+            """
+            ),
             "variables": {
                 "token0": token0.lower(),
                 "token1": token1.lower(),
@@ -73,13 +75,8 @@ class UniswapDataFetcher:
             token0,
             token1,
         )
-        response = requests.post(self.subgraph_url, json=query)
-
-        if response.status_code != 200:
-            logger.error(
-                "Failed to fetch pair data: {}", response.text
-            )
-            return None
+        response = httpx.post(self.subgraph_url, json=query)
+        response.raise_for_status()
 
         data = response.json()
         return data.get("data", {}).get("pairs", [None])[0]
@@ -97,7 +94,8 @@ class UniswapDataFetcher:
             Optional[Dict[str, Any]]: Token data if found, otherwise None.
         """
         query = {
-            "query": """
+            "query": (
+                """
             query ($address: String!) {
                 token(id: $address) {
                     id
@@ -107,20 +105,16 @@ class UniswapDataFetcher:
                     totalSupply
                 }
             }
-            """,
+            """
+            ),
             "variables": {"address": token_address.lower()},
         }
 
         logger.info(
             "Fetching token data for address: {}", token_address
         )
-        response = requests.post(self.subgraph_url, json=query)
-
-        if response.status_code != 200:
-            logger.error(
-                "Failed to fetch token data: {}", response.text
-            )
-            return None
+        response = httpx.post(self.subgraph_url, json=query)
+        response.raise_for_status()
 
         data = response.json()
         return data.get("data", {}).get("token")
@@ -136,26 +130,23 @@ class UniswapDataFetcher:
             Optional[float]: The 24-hour volume of the pool if available, otherwise None.
         """
         query = {
-            "query": """
+            "query": (
+                """
             query ($address: String!) {
                 pair(id: $address) {
                     volumeUSD
                 }
             }
-            """,
+            """
+            ),
             "variables": {"address": pool_address.lower()},
         }
 
         logger.info(
             "Fetching pool volume for address: {}", pool_address
         )
-        response = requests.post(self.subgraph_url, json=query)
-
-        if response.status_code != 200:
-            logger.error(
-                "Failed to fetch pool volume: {}", response.text
-            )
-            return None
+        response = httpx.post(self.subgraph_url, json=query)
+        response.raise_for_status()
 
         data = response.json()
         volume = data.get("data", {}).get("pair", {}).get("volumeUSD")
@@ -174,7 +165,8 @@ class UniswapDataFetcher:
             Optional[List[Dict[str, Any]]]: A list of liquidity positions if available, otherwise None.
         """
         query = {
-            "query": """
+            "query": (
+                """
             query ($address: String!) {
                 user(id: $address) {
                     liquidityPositions {
@@ -192,21 +184,16 @@ class UniswapDataFetcher:
                     }
                 }
             }
-            """,
+            """
+            ),
             "variables": {"address": user_address.lower()},
         }
 
         logger.info(
             "Fetching liquidity positions for user: {}", user_address
         )
-        response = requests.post(self.subgraph_url, json=query)
-
-        if response.status_code != 200:
-            logger.error(
-                "Failed to fetch liquidity positions: {}",
-                response.text,
-            )
-            return None
+        response = httpx.post(self.subgraph_url, json=query)
+        response.raise_for_status()
 
         data = response.json()
         user_data = data.get("data", {}).get("user")

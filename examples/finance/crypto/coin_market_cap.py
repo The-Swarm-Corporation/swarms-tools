@@ -3,7 +3,6 @@ from swarms_tools.finance.coin_market_cap import (
     coinmarketcap_api,
 )
 
-
 if __name__ == "__main__":
     # Set up logging
     logger.add(

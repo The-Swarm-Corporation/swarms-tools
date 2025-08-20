@@ -1,6 +1,5 @@
-from typing import Any, Dict
-
-import requests
+import httpx
+from typing import Dict, Any
 from loguru import logger
 
 from swarms_tools.utils.formatted_string import (
@@ -29,15 +28,15 @@ class CoinGeckoAPI:
 
         Raises:
             ValueError: If the coin ID is invalid or data is unavailable.
-            requests.RequestException: If the API request fails.
+            httpx.RequestException: If the API request fails.
         """
         url = f"{CoinGeckoAPI.BASE_URL}/coins/{coin_id}"
         logger.info(f"Fetching data for coin ID: {coin_id}")
 
         try:
-            response = requests.get(url, timeout=10)
+            response = httpx.get(url, timeout=10)
             response.raise_for_status()
-        except requests.RequestException as e:
+        except httpx.RequestException as e:
             logger.error(
                 f"Failed to fetch data from CoinGecko API: {e}"
             )
@@ -69,40 +68,58 @@ class CoinGeckoAPI:
             "id": data.get("id"),
             "symbol": data.get("symbol"),
             "name": data.get("name"),
-            "current_price": data.get("market_data", {})
-            .get("current_price", {})
-            .get("usd", "N/A"),
-            "market_cap": data.get("market_data", {})
-            .get("market_cap", {})
-            .get("usd", "N/A"),
-            "total_volume": data.get("market_data", {})
-            .get("total_volume", {})
-            .get("usd", "N/A"),
-            "high_24h": data.get("market_data", {})
-            .get("high_24h", {})
-            .get("usd", "N/A"),
-            "low_24h": data.get("market_data", {})
-            .get("low_24h", {})
-            .get("usd", "N/A"),
-            "price_change_percentage_24h": data.get(
-                "market_data", {}
-            ).get("price_change_percentage_24h", "N/A"),
-            "circulating_supply": data.get("market_data", {}).get(
-                "circulating_supply", "N/A"
+            "current_price": (
+                data.get("market_data", {})
+                .get("current_price", {})
+                .get("usd", "N/A")
             ),
-            "total_supply": data.get("market_data", {}).get(
-                "total_supply", "N/A"
+            "market_cap": (
+                data.get("market_data", {})
+                .get("market_cap", {})
+                .get("usd", "N/A")
             ),
-            "max_supply": data.get("market_data", {}).get(
-                "max_supply", "N/A"
+            "total_volume": (
+                data.get("market_data", {})
+                .get("total_volume", {})
+                .get("usd", "N/A")
+            ),
+            "high_24h": (
+                data.get("market_data", {})
+                .get("high_24h", {})
+                .get("usd", "N/A")
+            ),
+            "low_24h": (
+                data.get("market_data", {})
+                .get("low_24h", {})
+                .get("usd", "N/A")
+            ),
+            "price_change_percentage_24h": (
+                data.get("market_data", {}).get(
+                    "price_change_percentage_24h", "N/A"
+                )
+            ),
+            "circulating_supply": (
+                data.get("market_data", {}).get(
+                    "circulating_supply", "N/A"
+                )
+            ),
+            "total_supply": (
+                data.get("market_data", {}).get("total_supply", "N/A")
+            ),
+            "max_supply": (
+                data.get("market_data", {}).get("max_supply", "N/A")
             ),
             "last_updated": data.get("last_updated"),
-            "description": data.get("description", {}).get(
-                "en", "No description available."
+            "description": (
+                data.get("description", {}).get(
+                    "en", "No description available."
+                )
             ),
-            "homepage": data.get("links", {}).get(
-                "homepage", ["No homepage available"]
-            )[0],
+            "homepage": (
+                data.get("links", {}).get(
+                    "homepage", ["No homepage available"]
+                )[0]
+            ),
         }
 
 

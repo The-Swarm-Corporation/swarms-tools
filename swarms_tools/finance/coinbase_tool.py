@@ -1,19 +1,18 @@
 import base64
 import hashlib
 import hmac
-import json
-import os
+import orjson
+import httpx
 import time
 from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, Union
 
-import requests
+# requests import removed - using httpx instead
 from loguru import logger
 from swarms_tools.utils.formatted_string import (
     format_object_to_string,
 )
-
 
 # Constants
 BASE_URL = "https://api.pro.coinbase.com"
@@ -71,7 +70,7 @@ def get_coin_data(
 
     Raises:
         ValueError: If the symbol is invalid
-        requests.RequestException: For API errors
+        httpx.RequestException: For API errors
     """
     try:
         if "-" not in symbol:
@@ -83,14 +82,14 @@ def get_coin_data(
         logger.info(f"Fetching data for {symbol}")
 
         # Get ticker data
-        ticker_response = requests.get(
+        ticker_response = httpx.get(
             f"{base_url}/products/{symbol}/ticker"
         )
         ticker_response.raise_for_status()
         ticker = ticker_response.json()
 
         # Get 24h stats
-        stats_response = requests.get(
+        stats_response = httpx.get(
             f"{base_url}/products/{symbol}/stats"
         )
         stats_response.raise_for_status()
@@ -120,7 +119,7 @@ def get_coin_data(
         logger.success(f"Successfully fetched data for {symbol}")
         return format_object_to_string(coin_data)
 
-    except requests.RequestException as e:
+    except httpx.RequestException as e:
         logger.error(
             f"API error fetching data for {symbol}: {str(e)}"
         )
@@ -161,11 +160,11 @@ def place_buy_order(
         }
 
         headers = create_auth_headers(
-            "POST", endpoint, json.dumps(order_data)
+            "POST", endpoint, orjson.dumps(order_data).decode()
         )
 
         logger.info(f"Placing buy order for {amount} {symbol}")
-        response = requests.post(
+        response = httpx.post(
             f"{base_url}{endpoint}", headers=headers, json=order_data
         )
         response.raise_for_status()
@@ -174,7 +173,7 @@ def place_buy_order(
         logger.success(f"Successfully placed buy order for {symbol}")
         return format_object_to_string(order)
 
-    except requests.RequestException as e:
+    except httpx.RequestException as e:
         logger.error(
             f"API error placing buy order for {symbol}: {str(e)}"
         )
@@ -214,11 +213,11 @@ def place_sell_order(
         }
 
         headers = create_auth_headers(
-            "POST", endpoint, json.dumps(order_data)
+            "POST", endpoint, orjson.dumps(order_data).decode()
         )
 
         logger.info(f"Placing sell order for {amount} {symbol}")
-        response = requests.post(
+        response = httpx.post(
             f"{base_url}{endpoint}", headers=headers, json=order_data
         )
         response.raise_for_status()
@@ -227,7 +226,7 @@ def place_sell_order(
         logger.success(f"Successfully placed sell order for {symbol}")
         return format_object_to_string(order)
 
-    except requests.RequestException as e:
+    except httpx.RequestException as e:
         logger.error(
             f"API error placing sell order for {symbol}: {str(e)}"
         )

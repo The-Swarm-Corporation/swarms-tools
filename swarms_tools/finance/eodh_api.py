@@ -1,5 +1,5 @@
 import os
-import requests
+import httpx
 from swarms_tools.utils.formatted_string import (
     format_object_to_string,
 )
@@ -19,12 +19,12 @@ def fetch_stock_news(stock_name: str):
     api_key = os.getenv("EODHD_API_KEY")
     url = f"https://eodhd.com/api/news?s={stock_name}.US&offset=0&limit=10&api_token={api_key}&fmt=json"
     try:
-        response = requests.get(url)
+        response = httpx.get(url)
         response.raise_for_status()  # Raises an HTTPError if the response status code is 4XX/5XX
         data = response.json()
         data = format_object_to_string(data)
         return data
-    except requests.exceptions.RequestException as e:
+    except httpx.RequestException as e:
         print(f"Failed to fetch news for {stock_name}: {e}")
         return {"error": "Failed to fetch news", "details": str(e)}
 

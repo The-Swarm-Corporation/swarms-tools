@@ -1,6 +1,7 @@
 import concurrent.futures
-from typing import Dict, Optional, List, Any
-import requests
+from typing import Any, Dict, List, Optional
+
+import httpx
 from loguru import logger
 
 # Constants
@@ -19,6 +20,17 @@ NATIVE_SOL_MINT = "So11111111111111111111111111111111111111112"
 
 
 def safe_fetch(fn, *args, **kwargs) -> Dict[str, Any]:
+    """
+    Safely executes a function and catches any exceptions, returning an error dict if failed.
+
+    Args:
+        fn (callable): The function to execute.
+        *args: Positional arguments for the function.
+        **kwargs: Keyword arguments for the function.
+
+    Returns:
+        Dict[str, Any]: The result of the function call, or an error dictionary if an exception occurs.
+    """
     try:
         return fn(*args, **kwargs)
     except Exception as e:
@@ -31,6 +43,17 @@ def get_jupiter_price(
     vs_token: Optional[str] = None,
     show_extra_info: bool = False,
 ) -> Dict[str, Any]:
+    """
+    Fetches price data for one or more Solana tokens from the Jupiter API.
+
+    Args:
+        ids (str): Comma-separated list of token mint addresses.
+        vs_token (Optional[str], optional): The mint address of the token to compare against. Defaults to None.
+        show_extra_info (bool, optional): Whether to include extra info in the response. Defaults to False.
+
+    Returns:
+        Dict[str, Any]: The JSON response from the Jupiter API containing price data.
+    """
     params = {"ids": ids}
     if show_extra_info:
         params["showExtraInfo"] = "true"
@@ -38,16 +61,23 @@ def get_jupiter_price(
         params["vsToken"] = vs_token
 
     logger.info(f"Fetching Jupiter prices for: {ids}")
-    resp = requests.get(f"{JUPITER_BASE}/price/v2", params=params)
+    resp = httpx.get(f"{JUPITER_BASE}/price/v2", params=params)
     resp.raise_for_status()
     return resp.json()
 
 
 def get_jupiter_metadata(mint_address: str) -> Dict[str, Any]:
+    """
+    Fetches metadata for a Solana token from the Jupiter API.
+
+    Args:
+        mint_address (str): The mint address of the token.
+
+    Returns:
+        Dict[str, Any]: The JSON response from the Jupiter API containing token metadata.
+    """
     logger.info(f"Fetching Jupiter metadata for: {mint_address}")
-    resp = requests.get(
-        f"{JUPITER_BASE}/tokens/v1/token/{mint_address}"
-    )
+    resp = httpx.get(f"{JUPITER_BASE}/tokens/v1/token/{mint_address}")
     resp.raise_for_status()
     return resp.json()
 
@@ -55,11 +85,23 @@ def get_jupiter_metadata(mint_address: str) -> Dict[str, Any]:
 def get_solscan_holders(
     mint_address: str, limit: int = 10, offset: int = 0
 ) -> Dict[str, Any]:
+    """
+    Fetches holder information for a Solana token from the Solscan API.
+
+    Args:
+        mint_address (str): The mint address of the token.
+        limit (int, optional): Number of holders to fetch. Defaults to 10.
+        offset (int, optional): Offset for pagination. Defaults to 0.
+
+    Returns:
+        Dict[str, Any]: The JSON response from the Solscan API containing holder data,
+                        or a note if the token is native SOL.
+    """
     if mint_address == NATIVE_SOL_MINT:
         return {"note": "Native SOL has no holder info."}
 
     logger.info(f"Fetching Solscan holders for: {mint_address}")
-    resp = requests.get(
+    resp = httpx.get(
         f"{SOLSCAN_BASE}/token/holders",
         params={
             "tokenAddress": mint_address,
@@ -72,13 +114,22 @@ def get_solscan_holders(
 
 
 def get_birdeye_price(mint_address: str) -> Dict[str, Any]:
+    """
+    Fetches the price of a Solana token from the Birdeye API.
+
+    Args:
+        mint_address (str): The mint address of the token.
+
+    Returns:
+        Dict[str, Any]: The JSON response from the Birdeye API containing price data.
+    """
     headers = {
         "X-API-KEY": "public"
     }  # Replace with your key if rate-limited
     url = f"{BIRDEYE_BASE}/token-price?address={mint_address}"
 
     logger.info(f"Fetching Birdeye price for: {mint_address}")
-    resp = requests.get(url, headers=headers)
+    resp = httpx.get(url, headers=headers)
     resp.raise_for_status()
     return resp.json()
 
@@ -86,31 +137,59 @@ def get_birdeye_price(mint_address: str) -> Dict[str, Any]:
 def get_dexscreener_data(
     network: str, pair_address: str
 ) -> Dict[str, Any]:
+    """
+    Fetches DEX pair data from the DexScreener API.
+
+    Args:
+        network (str): The blockchain network (e.g., "solana").
+        pair_address (str): The address of the DEX pair.
+
+    Returns:
+        Dict[str, Any]: The JSON response from the DexScreener API containing pair data.
+    """
     url = f"{DEXSCREENER_BASE}/pairs/{network}/{pair_address}"
     logger.info(
         f"Fetching DexScreener data for: {pair_address} on {network}"
     )
-    resp = requests.get(url)
+    resp = httpx.get(url)
     resp.raise_for_status()
     return resp.json()
 
 
 def get_coingecko_token_info(mint_address: str) -> Dict[str, Any]:
+    """
+    Fetches token information from the CoinGecko API for a Solana token.
+
+    Args:
+        mint_address (str): The mint address of the token.
+
+    Returns:
+        Dict[str, Any]: The JSON response from the CoinGecko API containing token info.
+    """
     logger.info(f"Fetching CoinGecko data for: {mint_address}")
     url = f"{COINGECKO_BASE}/coins/solana/contract/{mint_address}"
-    resp = requests.get(url)
+    resp = httpx.get(url)
     resp.raise_for_status()
     return resp.json()
 
 
 def get_solanafm_token_info(mint_address: str) -> Dict[str, Any]:
+    """
+    Fetches token information from the SolanaFM API for a Solana token.
+
+    Args:
+        mint_address (str): The mint address of the token.
+
+    Returns:
+        Dict[str, Any]: The JSON response from the SolanaFM API containing token info.
+    """
     logger.info(f"Fetching SolanaFM data for: {mint_address}")
     url = f"{SOLANAFM_BASE}/accounts/{mint_address}"
     headers = {
         "accept": "application/json",
         "x-api-key": "public",  # Replace with your real key if needed
     }
-    resp = requests.get(url, headers=headers)
+    resp = httpx.get(url, headers=headers)
     resp.raise_for_status()
     return resp.json()
 
@@ -119,19 +198,37 @@ def get_solanafm_token_info(mint_address: str) -> Dict[str, Any]:
 
 
 def get_htx_orderbook(pair: str) -> Dict[str, Any]:
+    """
+    Fetches the order book for a trading pair from the HTX (Huobi) API.
+
+    Args:
+        pair (str): The trading pair symbol (e.g., "solusdt").
+
+    Returns:
+        Dict[str, Any]: The JSON response from the HTX API containing order book data.
+    """
     url = f"{HTX_API_BASE}/api/v1/market/orderbook"
     params = {"symbol": pair}
     logger.info(f"Fetching HTX orderbook for: {pair}")
-    resp = requests.get(url, params=params)
+    resp = httpx.get(url, params=params)
     resp.raise_for_status()
     return resp.json()
 
 
 def get_okx_orderbook(pair: str) -> Dict[str, Any]:
+    """
+    Fetches the order book for a trading pair from the OKX API.
+
+    Args:
+        pair (str): The trading pair instrument ID (e.g., "SOL-USDT").
+
+    Returns:
+        Dict[str, Any]: The JSON response from the OKX API containing order book data.
+    """
     url = f"{OKX_API_BASE}/api/v5/market/orderbook"
     params = {"instId": pair}
     logger.info(f"Fetching OKX orderbook for: {pair}")
-    resp = requests.get(url, params=params)
+    resp = httpx.get(url, params=params)
     resp.raise_for_status()
     return resp.json()
 
@@ -149,6 +246,22 @@ def fetch_solana_coin_info(
     dex_pair_address: Optional[str] = None,
     coin_name: Optional[str] = None,
 ) -> Dict[str, Any]:
+    """
+    Aggregates Solana token information from multiple sources concurrently.
+
+    Args:
+        ids (str): Comma-separated list of token mint addresses.
+        vs_token (Optional[str], optional): The mint address of the token to compare against. Defaults to None.
+        show_extra_info (bool, optional): Whether to include extra info in the Jupiter price response. Defaults to False.
+        limit (int, optional): Number of holders to fetch from Solscan. Defaults to 10.
+        offset (int, optional): Offset for Solscan holders pagination. Defaults to 0.
+        network (str, optional): Blockchain network for DEX Screener. Defaults to "solana".
+        dex_pair_address (Optional[str], optional): DEX pair address for fetching DEX Screener data. Defaults to None.
+        coin_name (Optional[str], optional): Optional coin name (unused). Defaults to None.
+
+    Returns:
+        Dict[str, Any]: Aggregated token information from various APIs.
+    """
     ids_list: List[str] = ids.split(",")
     first_token: str = ids_list[0]
 
@@ -207,4 +320,4 @@ def fetch_solana_coin_info(
 #         show_extra_info=True,
 #     )
 
-#     print(json.dumps(result, indent=4))
+#     print(orjson.dumps(result, option=orjson.OPT_INDENT_2).decode())

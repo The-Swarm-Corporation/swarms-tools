@@ -1,7 +1,6 @@
 import os
-from typing import Any, Dict
-
-import requests
+import httpx
+from typing import Dict, Any
 from loguru import logger
 
 
@@ -27,15 +26,15 @@ class HeliusAPI:
 
         Raises:
             ValueError: If the account is invalid or no data is available.
-            requests.RequestException: If the API request fails.
+            httpx.RequestException: If the API request fails.
         """
         endpoint = f"{HeliusAPI.BASE_URL}/accounts/{account}?api-key={HeliusAPI.API_KEY}"
         logger.info(f"Fetching account data for: {account}")
 
         try:
-            response = requests.get(endpoint, timeout=10)
+            response = httpx.get(endpoint, timeout=10)
             response.raise_for_status()
-        except requests.RequestException as e:
+        except httpx.RequestException as e:
             logger.error(
                 f"Failed to fetch account data from Helius API: {e}"
             )
@@ -66,7 +65,7 @@ class HeliusAPI:
 
         Raises:
             ValueError: If the transaction signature is invalid or no data is available.
-            requests.RequestException: If the API request fails.
+            httpx.RequestException: If the API request fails.
         """
         endpoint = f"{HeliusAPI.BASE_URL}/transactions/{tx_signature}?api-key={HeliusAPI.API_KEY}"
         logger.info(
@@ -74,9 +73,9 @@ class HeliusAPI:
         )
 
         try:
-            response = requests.get(endpoint, timeout=10)
+            response = httpx.get(endpoint, timeout=10)
             response.raise_for_status()
-        except requests.RequestException as e:
+        except httpx.RequestException as e:
             logger.error(
                 f"Failed to fetch transaction data from Helius API: {e}"
             )
@@ -107,7 +106,7 @@ class HeliusAPI:
 
         Raises:
             ValueError: If the mint address is invalid or no data is available.
-            requests.RequestException: If the API request fails.
+            httpx.RequestException: If the API request fails.
         """
         endpoint = f"{HeliusAPI.BASE_URL}/tokens/{mint_address}?api-key={HeliusAPI.API_KEY}"
         logger.info(
@@ -115,9 +114,9 @@ class HeliusAPI:
         )
 
         try:
-            response = requests.get(endpoint, timeout=10)
+            response = httpx.get(endpoint, timeout=10)
             response.raise_for_status()
-        except requests.RequestException as e:
+        except httpx.RequestException as e:
             logger.error(
                 f"Failed to fetch token data from Helius API: {e}"
             )

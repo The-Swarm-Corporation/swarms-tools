@@ -1,11 +1,11 @@
-import loguru
-import requests
+import httpx
+from loguru import logger
 from swarms_tools.utils.formatted_string import (
     format_object_to_string,
 )
 
 # Configure logging
-loguru.logger.add("htx_tool.log", rotation="10 MB")
+logger.add("htx_tool.log", rotation="10 MB")
 
 
 def fetch_htx_data(coin_name: str) -> str:
@@ -27,13 +27,15 @@ def fetch_htx_data(coin_name: str) -> str:
     }  # Assuming USDT pairing
 
     try:
-        ticker_response = requests.get(
-            base_url + ticker_endpoint, params=ticker_params
+        ticker_response = httpx.get(
+            f"{base_url}{ticker_endpoint}",
+            params=ticker_params,
         )
+        ticker_response.raise_for_status()
         ticker_data = ticker_response.json()
 
         if ticker_data["status"] != "ok":
-            loguru.logger.error(
+            logger.error(
                 "Unable to fetch ticker data for coin: {}", coin_name
             )
             return {
@@ -48,13 +50,15 @@ def fetch_htx_data(coin_name: str) -> str:
             "type": "step0",
         }
 
-        order_book_response = requests.get(
-            base_url + order_book_endpoint, params=order_book_params
+        order_book_response = httpx.get(
+            f"{base_url}{order_book_endpoint}",
+            params=order_book_params,
         )
+        order_book_response.raise_for_status()
         order_book_data = order_book_response.json()
 
         if order_book_data["status"] != "ok":
-            loguru.logger.error(
+            logger.error(
                 "Unable to fetch order book data for coin: {}",
                 coin_name,
             )
@@ -70,13 +74,15 @@ def fetch_htx_data(coin_name: str) -> str:
             "size": 200,
         }
 
-        trades_response = requests.get(
-            base_url + trades_endpoint, params=trades_params
+        trades_response = httpx.get(
+            f"{base_url}{trades_endpoint}",
+            params=trades_params,
         )
+        trades_response.raise_for_status()
         trades_data = trades_response.json()
 
         if trades_data["status"] != "ok":
-            loguru.logger.error(
+            logger.error(
                 "Unable to fetch trade data for coin: {}", coin_name
             )
             return {
@@ -92,13 +98,15 @@ def fetch_htx_data(coin_name: str) -> str:
             "size": 200,
         }
 
-        kline_response = requests.get(
-            base_url + kline_endpoint, params=kline_params
+        kline_response = httpx.get(
+            f"{base_url}{kline_endpoint}",
+            params=kline_params,
         )
+        kline_response.raise_for_status()
         kline_data = kline_response.json()
 
         if kline_data["status"] != "ok":
-            loguru.logger.error(
+            logger.error(
                 "Unable to fetch kline data for coin: {}", coin_name
             )
             return {
@@ -154,8 +162,8 @@ def fetch_htx_data(coin_name: str) -> str:
 
         return format_object_to_string(formatted_data)
 
-    except requests.exceptions.RequestException as e:
-        loguru.logger.error(
+    except httpx.RequestException as e:
+        logger.error(
             "HTTP request failed for coin: {}", coin_name, exc_info=e
         )
         return {"error": "HTTP request failed", "details": str(e)}

@@ -356,9 +356,11 @@ class WebSearch:
             merged_results.append(
                 {
                     **original,
-                    "content": content_map.get(
-                        original["url"], {}
-                    ).get("content", ""),
+                    "content": (
+                        content_map.get(original["url"], {}).get(
+                            "content", ""
+                        )
+                    ),
                 }
             )
 

@@ -3,7 +3,6 @@ from swarms_tools.finance.yahoo_finance import (
     yahoo_finance_api,
 )
 
-
 if __name__ == "__main__":
     # Set up logging
     logger.add(
