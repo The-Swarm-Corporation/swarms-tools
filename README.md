@@ -8,11 +8,14 @@
 
 ## Key Features
 
-- **Unified API Integration**: Production-ready Python functions for enterprise applications
-- **Enterprise-Grade Architecture**: Comprehensive type hints, structured outputs, and enterprise documentation standards
-- **Multi-Agent System Compatibility**: Optimized for seamless integration into Swarms' distributed agent orchestration platforms
-- **Extensible Framework**: Standardized schema for rapid tool development and deployment
-- **Enterprise Security**: Secure API key management and compliance-ready implementation patterns
+| Feature                                      | Description                                                                                                    |
+|-----------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| **Unified API Integration**                   | Production-ready Python functions for enterprise applications                                                  |
+| **Enterprise-Grade Architecture**             | Comprehensive type hints, structured outputs, and enterprise documentation standards                           |
+| **Multi-Agent System Compatibility**          | Optimized for seamless integration into Swarms' distributed agent orchestration platforms                      |
+| **Extensible Framework**                      | Standardized schema for rapid tool development and deployment                                                  |
+| **Enterprise Security**                       | Secure API key management and compliance-ready implementation patterns                                         |
+| **Bleeding Edge Performance**                 | Utilizes high-performance libraries such as `httpx` for async HTTP and `orjson` for ultra-fast serialization   |
 
 ## Installation
 
