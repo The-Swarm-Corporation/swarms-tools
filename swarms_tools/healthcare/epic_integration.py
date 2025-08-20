@@ -1,11 +1,12 @@
 import os
-import httpx
-import backoff
-from typing import Any, Dict, Optional, List
-from fastmcp import FastMCP
-from pydantic import BaseModel, Field, validator, HttpUrl
 from functools import lru_cache
+from typing import Any, Dict, List, Optional
+
+import backoff
+import httpx
+from mcp.server.fastmcp import FastMCP
 from loguru import logger
+from pydantic import BaseModel, Field, HttpUrl, validator
 
 # Initialize MCP
 mcp = FastMCP("epic-mcp")
@@ -408,5 +409,9 @@ async def get_conditions(patient_id: str) -> dict:
     )
 
 
-if __name__ == "__main__":
+def start_epic_mcp():
     mcp.run(transport="sse")
+
+
+# if __name__ == "__main__":
+#     start_epic_mcp()
