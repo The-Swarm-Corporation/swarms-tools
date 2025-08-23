@@ -17,14 +17,6 @@ import pandas as pd
 import yfinance as yf
 from loguru import logger
 
-# Configure logger
-logger.add(
-    "sector_analysis.log",
-    rotation="500 MB",
-    retention="10 days",
-    level="INFO",
-)
-
 
 def calculate_rsi(data: pd.Series, periods: int = 14) -> pd.Series:
     """
@@ -201,26 +193,26 @@ class SectorAnalyzer:
             raise
 
 
-def analyze_index_sectors():
-    """Main function for demonstration purposes."""
-    analyzer = SectorAnalyzer()
-    results = analyzer.analyze_sectors()
+# def analyze_index_sectors():
+#     """Main function for demonstration purposes."""
+#     analyzer = SectorAnalyzer()
+#     results = analyzer.analyze_sectors()
 
-    # Print results
-    print("\nSector RSI Analysis Results:")
-    print("-" * 40)
-    for symbol, rsi in results["rsi_values"].items():
-        sector_name = SectorAnalyzer.SECTOR_ETFS[symbol]
-        print(f"{sector_name} ({symbol}): RSI = {rsi:.2f}")
+#     # Print results
+#     print("\nSector RSI Analysis Results:")
+#     print("-" * 40)
+#     for symbol, rsi in results["rsi_values"].items():
+#         sector_name = SectorAnalyzer.SECTOR_ETFS[symbol]
+#         print(f"{sector_name} ({symbol}): RSI = {rsi:.2f}")
 
-    print("\nExtreme Sectors:")
-    print(
-        "Overbought:",
-        ", ".join(results["overbought_sectors"]) or "None",
-    )
-    print(
-        "Oversold:", ", ".join(results["oversold_sectors"]) or "None"
-    )
+#     print("\nExtreme Sectors:")
+#     print(
+#         "Overbought:",
+#         ", ".join(results["overbought_sectors"]) or "None",
+#     )
+#     print(
+#         "Oversold:", ", ".join(results["oversold_sectors"]) or "None"
+#     )
 
 
 # if __name__ == "__main__":

@@ -13,6 +13,7 @@ from loguru import logger
 from swarms_tools.utils.formatted_string import (
     format_object_to_string,
 )
+import os
 
 # Constants
 BASE_URL = "https://api.pro.coinbase.com"

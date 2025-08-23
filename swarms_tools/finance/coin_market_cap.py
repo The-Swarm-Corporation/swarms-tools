@@ -6,6 +6,8 @@ from swarms_tools.utils.formatted_string import (
     format_object_to_string,
 )
 
+from typing import List
+
 
 class CoinMarketCapAPI:
     """

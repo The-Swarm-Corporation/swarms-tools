@@ -1,24 +1,20 @@
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+
+import httpx
+from loguru import logger
+
 from swarms_tools.utils.formatted_string import (
     format_object_to_string,
 )
 
-try:
-    import yfinance as yf
-except ImportError:
-    import subprocess
-
-    subprocess.check_call(
-        ["python", "-m", "pip", "install", "yfinance"]
-    )
-    import yfinance as yf
-
-from loguru import logger
+YAHOO_FINANCE_QUOTE_URL = (
+    "https://query1.finance.yahoo.com/v7/finance/quote"
+)
 
 
 class YahooFinanceAPI:
     """
-    A production-grade tool for fetching stock data from Yahoo Finance.
+    A production-grade tool for fetching stock data from Yahoo Finance using the public API endpoint.
     """
 
     @staticmethod
@@ -27,7 +23,7 @@ class YahooFinanceAPI:
         stock_symbols: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
-        Fetch all possible data about one or more stocks from Yahoo Finance.
+        Fetch all possible data about one or more stocks from Yahoo Finance using the HTTP API.
 
         Args:
             stock_symbols (Optional[List[str]]): A list of stock symbols (e.g., ['AAPL', 'GOOG']).
@@ -47,88 +43,77 @@ class YahooFinanceAPI:
 
         logger.info(f"Fetching data for stocks: {stock_symbols}")
 
-        stock_data = {}
-        for symbol in stock_symbols:
-            try:
-                logger.debug(
-                    f"Fetching data for stock symbol: {symbol}"
-                )
-                stock_info = YahooFinanceAPI._get_stock_info(symbol)
-                stock_data[symbol] = stock_info
-                logger.info(f"Data fetched successfully for {symbol}")
-            except Exception as e:
-                logger.error(f"Error fetching data for {symbol}: {e}")
-                stock_data[symbol] = {"error": str(e)}
-
-        return stock_data
-
-    @staticmethod
-    def _get_stock_info(symbol: str) -> Dict[str, Any]:
-        """
-        Fetch and format stock data for a single stock symbol.
-
-        Args:
-            symbol (str): The stock symbol to fetch data for.
-
-        Returns:
-            Dict[str, Any]: A formatted dictionary containing stock data.
-
-        Raises:
-            ValueError: If the stock symbol is invalid or data is not found.
-        """
         try:
-            stock = yf.Ticker(symbol)
-            stock_info = stock.info
+            params = {"symbols": ",".join(stock_symbols)}
+            response = httpx.get(
+                YAHOO_FINANCE_QUOTE_URL, params=params, timeout=10
+            )
+            response.raise_for_status()
+            data = response.json()
+            results = data.get("quoteResponse", {}).get("result", [])
+            if not results:
+                raise ValueError(
+                    "No data returned from Yahoo Finance for the given symbols."
+                )
 
-            # if not stock_info or "regularMarketPrice" not in stock_info:
-            #     raise ValueError(
-            #         f"Invalid stock symbol or no data available for: {symbol}"
-            #     )
+            stock_data = {}
+            for stock_info in results:
+                symbol = stock_info.get("symbol", "N/A")
+                formatted_data = {
+                    "symbol": symbol,
+                    "name": stock_info.get("shortName", "N/A"),
+                    "sector": stock_info.get("sector", "N/A"),
+                    "industry": stock_info.get("industry", "N/A"),
+                    "current_price": stock_info.get(
+                        "regularMarketPrice", "N/A"
+                    ),
+                    "previous_close": stock_info.get(
+                        "regularMarketPreviousClose", "N/A"
+                    ),
+                    "open_price": stock_info.get(
+                        "regularMarketOpen", "N/A"
+                    ),
+                    "day_high": stock_info.get(
+                        "regularMarketDayHigh", "N/A"
+                    ),
+                    "day_low": stock_info.get(
+                        "regularMarketDayLow", "N/A"
+                    ),
+                    "volume": stock_info.get(
+                        "regularMarketVolume", "N/A"
+                    ),
+                    "market_cap": stock_info.get("marketCap", "N/A"),
+                    "52_week_high": stock_info.get(
+                        "fiftyTwoWeekHigh", "N/A"
+                    ),
+                    "52_week_low": stock_info.get(
+                        "fiftyTwoWeekLow", "N/A"
+                    ),
+                    "dividend_yield": stock_info.get(
+                        "dividendYield", "N/A"
+                    ),
+                    "description": stock_info.get(
+                        "longBusinessSummary", "N/A"
+                    ),
+                }
+                stock_data[symbol] = formatted_data
 
-            # Format the stock data into a structured dictionary
-            formatted_data = {
-                "symbol": stock_info.get("symbol", symbol),
-                "name": stock_info.get("shortName", "N/A"),
-                "sector": stock_info.get("sector", "N/A"),
-                "industry": stock_info.get("industry", "N/A"),
-                "current_price": stock_info.get(
-                    "regularMarketPrice", "N/A"
-                ),
-                "previous_close": stock_info.get(
-                    "regularMarketPreviousClose", "N/A"
-                ),
-                "open_price": stock_info.get(
-                    "regularMarketOpen", "N/A"
-                ),
-                "day_high": stock_info.get(
-                    "regularMarketDayHigh", "N/A"
-                ),
-                "day_low": stock_info.get(
-                    "regularMarketDayLow", "N/A"
-                ),
-                "volume": stock_info.get(
-                    "regularMarketVolume", "N/A"
-                ),
-                "market_cap": stock_info.get("marketCap", "N/A"),
-                "52_week_high": stock_info.get(
-                    "fiftyTwoWeekHigh", "N/A"
-                ),
-                "52_week_low": stock_info.get(
-                    "fiftyTwoWeekLow", "N/A"
-                ),
-                "dividend_yield": stock_info.get(
-                    "dividendYield", "N/A"
-                ),
-                "description": stock_info.get(
-                    "longBusinessSummary", "N/A"
-                ),
+            # For any requested symbol not returned, add an error
+            for symbol in stock_symbols:
+                if symbol not in stock_data:
+                    stock_data[symbol] = {
+                        "error": "No data found for this symbol."
+                    }
+
+            return stock_data
+        except Exception as e:
+            logger.error(
+                f"Error fetching data from Yahoo Finance API: {e}"
+            )
+            # Return error for all symbols if a global error occurs
+            return {
+                symbol: {"error": str(e)} for symbol in stock_symbols
             }
-
-            # print(formatted_data)
-
-            return formatted_data
-        except Exception as error:
-            logger.error(error)
 
 
 def yahoo_finance_api(
@@ -141,7 +126,7 @@ def yahoo_finance_api(
         stock_symbols (Optional[List[str]]): A list of stock symbols to fetch data for.
 
     Returns:
-        Dict[str, Any]: A dictionary containing the fetched stock data.
+        str: A string containing the fetched stock data.
     """
     try:
         stock_data = YahooFinanceAPI.fetch_stock_data(stock_symbols)
@@ -152,21 +137,3 @@ def yahoo_finance_api(
     except Exception as e:
         logger.error(f"Unexpected error occurred: {e}")
         return f"error: {str(e)}"
-
-
-# if __name__ == "__main__":
-#     # Set up logging
-#     logger.add(
-#         "yahoo_finance_api.log", rotation="500 MB", level="INFO"
-#     )
-
-#     # Example usage
-#     single_stock = yahoo_finance_api(
-#         ["AAPL"]
-#     )  # Fetch data for a single stock
-#     print("Single Stock Data:", single_stock)
-
-#     # multiple_stocks = yahoo_finance_api(
-#     #     ["AAPL", "GOOG", "MSFT"]
-#     # )  # Fetch data for multiple stocks
-#     # print("Multiple Stocks Data:", multiple_stocks)

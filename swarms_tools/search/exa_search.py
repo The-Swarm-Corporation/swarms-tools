@@ -1,8 +1,8 @@
 import os
 
 import httpx
-import orjson
 from loguru import logger
+from swarms.utils.any_to_str import any_to_str
 
 
 def exa_search(
@@ -44,6 +44,11 @@ def exa_search(
 
     """
     api_key = os.getenv("EXA_API_KEY")
+
+    if not api_key:
+        raise ValueError(
+            "EXA_API_KEY environment variable is not set"
+        )
 
     headers = {
         "x-api-key": api_key,
@@ -91,9 +96,7 @@ def exa_search(
         response.raise_for_status()
         json_data = response.json()
 
-        return orjson.dumps(
-            json_data, option=orjson.OPT_INDENT_2
-        ).decode("utf-8")
+        return any_to_str(json_data)
 
     except Exception as e:
         logger.error(f"Exa search failed: {e}")
