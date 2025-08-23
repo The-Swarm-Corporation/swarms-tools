@@ -7,8 +7,8 @@ from swarms.utils.any_to_str import any_to_str
 
 def exa_search(
     query: str,
-    characters: int = 1000,
-    sources: int = 10,
+    characters: int = 200,
+    sources: int = 3,
 ) -> str:
     """
     Exa Web Search Tool
