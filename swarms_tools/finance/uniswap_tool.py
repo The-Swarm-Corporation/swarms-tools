@@ -1,40 +1,25 @@
-import subprocess
 from typing import Any, Dict, List, Optional
 import httpx
-
-try:
-    from web3 import Web3
-except ImportError:
-    subprocess.run(["pip", "install", "web3"])
-    from web3 import Web3
-
 from loguru import logger
 
-RPC_URL = "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID"
 UNISWAP_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
 )
 
 
 class UniswapDataFetcher:
-    def __init__(self, rpc_url: str, uniswap_subgraph_url: str):
+    def __init__(self, uniswap_subgraph_url: str):
         """
         Initialize the UniswapDataFetcher.
 
         Args:
-            rpc_url (str): The RPC URL of the Ethereum node.
             uniswap_subgraph_url (str): The URL of the Uniswap subgraph API.
         """
-        self.web3 = Web3(Web3.HTTPProvider(rpc_url))
         self.subgraph_url = uniswap_subgraph_url
-
-        if not self.web3.isConnected():
-            logger.error("Failed to connect to Ethereum node.")
-            raise ConnectionError(
-                "Unable to connect to Ethereum node."
-            )
-
-        logger.info("Connected to Ethereum node.")
+        logger.info(
+            "Initialized UniswapDataFetcher with subgraph URL: {}",
+            uniswap_subgraph_url,
+        )
 
     def fetch_pair_data(
         self, token0: str, token1: str
@@ -79,7 +64,8 @@ class UniswapDataFetcher:
         response.raise_for_status()
 
         data = response.json()
-        return data.get("data", {}).get("pairs", [None])[0]
+        pairs = data.get("data", {}).get("pairs", [])
+        return pairs[0] if pairs else None
 
     def fetch_token_data(
         self, token_address: str
@@ -213,7 +199,7 @@ def fetch_token_data(token: str) -> Optional[Dict[str, Any]]:
         Optional[Dict[str, Any]]: Token data if found, otherwise None.
     """
     try:
-        fetcher = UniswapDataFetcher(RPC_URL, UNISWAP_SUBGRAPH_URL)
+        fetcher = UniswapDataFetcher(UNISWAP_SUBGRAPH_URL)
         token_data = fetcher.fetch_token_data(token)
         return token_data
     except Exception as e:
@@ -235,7 +221,7 @@ def fetch_pair_data(
         Optional[Dict[str, Any]]: Pair data if found, otherwise None.
     """
     try:
-        fetcher = UniswapDataFetcher(RPC_URL, UNISWAP_SUBGRAPH_URL)
+        fetcher = UniswapDataFetcher(UNISWAP_SUBGRAPH_URL)
         pair_data = fetcher.fetch_pair_data(token0, token1)
         return pair_data
     except Exception as e:
@@ -254,7 +240,7 @@ def fetch_pool_volume(pool_address: str) -> Optional[float]:
         Optional[float]: The volume of the pool if found, otherwise None.
     """
     try:
-        fetcher = UniswapDataFetcher(RPC_URL, UNISWAP_SUBGRAPH_URL)
+        fetcher = UniswapDataFetcher(UNISWAP_SUBGRAPH_URL)
         pool_volume = fetcher.fetch_pool_volume(pool_address)
         return pool_volume
     except Exception as e:
@@ -275,7 +261,7 @@ def fetch_liquidity_positions(
         Optional[List[Dict[str, Any]]]: A list of liquidity positions if found, otherwise None.
     """
     try:
-        fetcher = UniswapDataFetcher(RPC_URL, UNISWAP_SUBGRAPH_URL)
+        fetcher = UniswapDataFetcher(UNISWAP_SUBGRAPH_URL)
         liquidity_positions = fetcher.fetch_liquidity_positions(
             user_address
         )
@@ -312,22 +298,21 @@ def fetch_all_uniswap_data(
 
 # # Example usage
 # if __name__ == "__main__":
-#     RPC_URL = "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID"
 #     UNISWAP_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
-
-#     fetcher = UniswapDataFetcher(RPC_URL, UNISWAP_SUBGRAPH_URL)
-
+#
+#     fetcher = UniswapDataFetcher(UNISWAP_SUBGRAPH_URL)
+#
 #     token_data = fetcher.fetch_token_data("0xdAC17F958D2ee523a2206206994597C13D831ec7")  # Example for USDT
 #     logger.info("Token Data: {}", token_data)
-
+#
 #     pair_data = fetcher.fetch_pair_data(
 #         "0xdAC17F958D2ee523a2206206994597C13D831ec7",
 #         "0xC02aaA39b223FE8D0A0E5C4F27eAD9083C756Cc2"
 #     )  # Example for USDT-WETH pair
 #     logger.info("Pair Data: {}", pair_data)
-
+#
 #     pool_volume = fetcher.fetch_pool_volume("0xB4e16d0168e52d35CaCD2c6185b44281Ec28C9Dc")  # Example for USDT-WETH pool
 #     logger.info("Pool Volume: {}", pool_volume)
-
+#
 #     liquidity_positions = fetcher.fetch_liquidity_positions("0xYourWalletAddress")
 #     logger.info("Liquidity Positions: {}", liquidity_positions)
