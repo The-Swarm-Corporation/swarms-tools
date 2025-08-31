@@ -43,78 +43,99 @@ swarms-tools/
 └── README.md
 ```
 
-## Enterprise Use Cases
+## Tools Examples
 
-### Financial Data Management
+### HTX Trading Data
 
-Our comprehensive financial tools enable organizations to streamline operations and gain actionable insights:
+Retrieve historical trading data and market analysis from HTX platform.
 
-| Tool Name | Function | Description |
-|-----------|----------|-------------|
-| `fetch_stock_news` | `fetch_stock_news` | Retrieves real-time stock news and market updates |
-| `fetch_htx_data` | `fetch_htx_data` | Accesses financial data from HTX trading platform |
-| `yahoo_finance_api` | `yahoo_finance_api` | Comprehensive stock data including pricing and trend analysis |
-| `coin_gecko_coin_api` | `coin_gecko_coin_api` | Cryptocurrency market data and pricing information |
-| `helius_api_tool` | `helius_api_tool` | Blockchain account, transaction, and token data via Helius API |
-| `okx_api_tool` | `okx_api_tool` | Detailed cryptocurrency data from OKX exchange |
-| `defillama_mcp_tools` | `get_protocol_tvl, get_chain_tvl, get_token_prices, make_request` | DeFi ecosystem data including protocol TVL and token pricing |
-
-#### Financial Data Retrieval Examples
-
-**Historical Data Analysis**
 ```python
 from swarms_tools import fetch_htx_data
 
-# Retrieve historical trading data for analysis
 response = fetch_htx_data("swarms")
 print(response)
 ```
 
-**Market News Intelligence**
+### Stock News
+
+Access real-time stock news and market updates for strategic decision-making.
+
 ```python
 from swarms_tools import fetch_stock_news
 
-# Access latest market news for strategic decision-making
 news = fetch_stock_news("AAPL")
 print(news)
 ```
 
-**Cryptocurrency Market Analysis**
+### Yahoo Finance API
+
+Comprehensive stock data including pricing, trends, and historical analysis.
+
+```python
+from swarms_tools import yahoo_finance_api
+
+stock_data = yahoo_finance_api("AAPL")
+print(stock_data)
+```
+
+### CoinGecko API
+
+Real-time cryptocurrency market data and pricing information.
+
 ```python
 from swarms_tools import coin_gecko_coin_api
 
-# Real-time cryptocurrency market data
 crypto_data = coin_gecko_coin_api("bitcoin")
 print(crypto_data)
 ```
 
-**DeFi Protocol Analytics**
+### DeFi Protocol Analytics
+
+DeFi ecosystem data including protocol TVL and token pricing.
+
 ```python
 from swarms_tools import get_protocol_tvl
 
-# Protocol TVL data for investment analysis
 protocol_tvl = await get_protocol_tvl("uniswap-v3")
 print(protocol_tvl)
 ```
 
-### Social Media Automation
+### Web Scraper
 
-Streamline corporate communication and engagement strategies:
+Enterprise-grade web scraping for content extraction and data mining.
 
-**Telegram Integration Example**
+```python
+from swarms_tools.search.web_scraper import scrape_single_url_sync
+
+content = scrape_single_url_sync("https://example.com")
+print(content.title, content.text)
+```
+
+### Telegram API
+
+Automated messaging and communication through Telegram platform.
+
 ```python
 from swarms_tools import telegram_dm_or_tag_api
 
-def send_corporate_alert(response: str):
-    telegram_dm_or_tag_api(response)
-
-# Automated corporate communication
-send_corporate_alert("Critical business update from Swarms Corporation.")
+telegram_dm_or_tag_api("Critical business update from Swarms Corporation.")
 ```
 
-## Dex Screener Integration
+### Twitter Tool
 
-Enterprise-grade tool for accessing decentralized exchange data across multiple blockchain networks:
+Comprehensive Twitter automation for enterprise social media management.
+
+```python
+from swarms_tools.social_media.twitter_tool import TwitterTool
+
+twitter_plugin = TwitterTool(options)
+post_tweet = twitter_plugin.get_function("post_tweet")
+post_tweet("Enterprise update from Swarms Corp")
+```
+
+### Dex Screener
+
+Enterprise-grade tool for accessing decentralized exchange data across multiple blockchain networks.
 
 ```python
 from swarms_tools.finance.dex_screener import (
@@ -122,9 +143,30 @@ from swarms_tools.finance.dex_screener import (
     fetch_dex_screener_profiles,
 )
 
-# Retrieve token boost data
 fetch_dex_screener_profiles()
 fetch_latest_token_boosts()
+```
+
+### GitHub Tool
+
+GitHub repository management and automation capabilities for development workflows.
+
+```python
+from swarms_tools.devs.github import GitHubTool
+
+github_tool = GitHubTool()
+repo_info = github_tool.get_repository("swarms-corp/swarms-tools")
+```
+
+### Code Executor
+
+Secure code execution environment for development and automation workflows.
+
+```python
+from swarms_tools.devs.code_executor import CodeExecutor
+
+executor = CodeExecutor()
+result = executor.execute("print('Hello from Swarms Tools')")
 ```
 
 ## Tool Orchestration Framework
@@ -156,7 +198,6 @@ if __name__ == "__main__":
     print("Sequential Results:", sequential_results)
 ```
 
-## Social Media Management
 
 ### Twitter API Integration
 
