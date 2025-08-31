@@ -1,10 +1,10 @@
 # Swarms Tools
 
-[![Join our Discord](https://img.shields.io/badge/Discord-Join%20our%20server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/agora-999382051935506503) [![Subscribe on YouTube](https://img.shields.io/badge/YouTube-Subscribe-red?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@kyegomez3242) [![Connect on LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/kye-g-38759a207/) [![Follow on X.com](https://img.shields.io/badge/X.com-Follow-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/kyegomezb)
+[![Join our Discord](https://img.shields.io/badge/Discord-Join%20our%20server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/EamjgSaEQf) [![Subscribe on YouTube](https://img.shields.io/badge/YouTube-Subscribe-red?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@kyegomez3242) [![Connect on LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/kye-g-38759a207/) [![Follow on X.com](https://img.shields.io/badge/X.com-Follow-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/kyegomezb)
 
 ## Overview
 
-**Swarms Tools** is an enterprise-grade Python package designed for seamless integration of cutting-edge APIs into multi-agent orchestration systems. Built for organizations requiring robust, scalable, and maintainable automation solutions, this toolkit provides standardized interfaces for financial data, social media integration, IoT connectivity, and more.
+**Swarms Tools** provides a vast array of pre-built tools for your agents, MCP servers, and multi-agent systems. It is built from the ground up for bleeding-edge performance, leveraging packages like `HTTPX`, `orjson`, and other production-grade libraries. Our goal with this package is to make it easier for agent creators to integrate tools into their agents.
 
 ## Key Features
 
