@@ -472,7 +472,6 @@ def scrape_and_format_sync(
     url: str,
     format_type: str = "detailed",
     truncate: bool = True,
-    **kwargs,
 ) -> str:
     """
     Synchronously scrape a URL and return its formatted content in a single call.
@@ -498,7 +497,7 @@ def scrape_and_format_sync(
     Example:
         >>> print(scrape_and_format_sync("https://example.com", format_type="summary"))
     """
-    content = scrape_single_url_sync(url, **kwargs)
+    content = scrape_single_url_sync(url)
     return format_scraped_content(content, format_type, truncate)
 
 
