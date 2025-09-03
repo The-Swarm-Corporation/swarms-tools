@@ -1,21 +1,9 @@
 import os
 from typing import Dict, Any
-
-try:
-    from tavily import TavilyClient
-except ImportError:
-    print("Installing tavily...")
-    import subprocess
-    import sys
-
-    subprocess.run([sys.executable, "-m", "pip", "install", "tavily"])
-    from tavily import TavilyClient
-
+import httpx
 
 from dotenv import load_dotenv
-from rich.console import Console
 
-console = Console()
 load_dotenv()
 
 
@@ -58,7 +46,7 @@ def format_query_results(json_data: Dict[str, Any]) -> str:
 
 def tavily_search(query: str) -> str:
     """
-    Performs a web search using the Tavily API
+    Performs a web search using the Tavily API with raw httpx calls
 
     Args:
         query: Search query string
@@ -66,28 +54,65 @@ def tavily_search(query: str) -> str:
     Returns:
         Formatted search results string
     """
-    # Initialize Tavily client
-    tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
+    # Get API key from environment
+    api_key = os.getenv("TAVILY_API_KEY")
+    if not api_key:
+        raise ValueError(
+            "TAVILY_API_KEY environment variable is required"
+        )
 
-    # Execute search query
-    response = tavily_client.search(query)
+    # Set up headers and endpoint
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
 
-    # Print raw JSON response
-    console.print("\n[bold]Tavily Raw Response:[/bold]")
-    console.print(response)
+    base_url = "https://api.tavily.com"
+    endpoint = f"{base_url}/search"
 
-    # Format results
-    formatted_text = format_query_results(response)
+    # Prepare request payload
+    payload = {"query": query}
 
-    # Save results to file
-    with open("tavily_search_results.txt", "w") as file:
-        file.write(formatted_text)
+    # Make the API request using httpx
+    with httpx.Client() as client:
+        try:
+            response = client.post(
+                endpoint, headers=headers, json=payload, timeout=30.0
+            )
 
-    return formatted_text
+            # Check if the request was successful
+            if response.status_code == 200:
+                response_data = response.json()
+
+                # Print raw JSON response
+                print("\nTavily Raw Response:")
+                print(response_data)
+
+                # Format results
+                formatted_text = format_query_results(response_data)
+
+                # Save results to file
+                with open("tavily_search_results.txt", "w") as file:
+                    file.write(formatted_text)
+
+                return formatted_text
+            else:
+                error_msg = f"API request failed with status {response.status_code}: {response.text}"
+                print(f"Error: {error_msg}")
+                return error_msg
+
+        except httpx.RequestError as e:
+            error_msg = f"Request error: {str(e)}"
+            print(f"Error: {error_msg}")
+            return error_msg
+        except httpx.HTTPStatusError as e:
+            error_msg = f"HTTP error: {e.response.status_code} - {e.response.text}"
+            print(f"Error: {error_msg}")
+            return error_msg
 
 
 # # Example usage
 # if __name__ == "__main__":
 #     results = tavily_search("Deepseek news")
-#     console.print("\n[bold]Formatted Tavily Results:[/bold]")
-#     console.print(results)
+#     print("\nFormatted Tavily Results:")
+#     print(results)
