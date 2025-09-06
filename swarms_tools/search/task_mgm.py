@@ -103,7 +103,7 @@ class TaskManager:
         phase = self.task_plan.phases[phase_idx]
         all_tasks_completed = all(task.completed for task in phase.tasks)
         
-        if all_tasks_completed and not phase.completed_at:
+        if all_tasks_completed:
             # Activate next phase if available
             if phase_idx + 1 < len(self.task_plan.phases):
                 self.task_plan.phases[phase_idx + 1].is_active = True
@@ -111,7 +111,7 @@ class TaskManager:
     def _check_project_completion(self):
         """Check if the entire project is complete"""
         all_phases_completed = all(
-            phase.completed_at is not None 
+            all(task.completed for task in phase.tasks)
             for phase in self.task_plan.phases
         )
         
@@ -271,7 +271,6 @@ def task_planner(
                 description=task_data.get("description", ""),
                 agent=task_data.get("agent", "Unassigned"),
                 completed=task_data.get("completed", False),
-                completed_at=None
             )
             tasks.append(task)
         phase = Phase(
