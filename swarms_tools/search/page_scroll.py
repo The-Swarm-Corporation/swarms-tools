@@ -69,6 +69,6 @@ def scroll_and_record(url, duration_seconds=10, output_filename="scroll_recordin
     finally:
         driver.quit()
 
-# Example usage
-if __name__ == '__main__':
-    scroll_and_record("https://docs.swarms.ai/capabilities/agent", duration_seconds=10)
+# # Example usage
+# if __name__ == '__main__':
+#     scroll_and_record("https://docs.swarms.ai/capabilities/agent", duration_seconds=10)
