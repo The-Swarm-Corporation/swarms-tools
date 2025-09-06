@@ -40,8 +40,7 @@ def generate_detailed_plan(
         "- task_number: Task identifier\n"
         "- description: Clear, specific description of what needs to be accomplished. Be REALLY specific on what agents will be used, where the agents will look for/work in, and an into-depth format of what it will be doing.\n"
         "- action_items: Detailed list of specific tasks to be performed (e.g. The code fetches and displays projects with title, description, and other details. To show the description below the title, I will modify the JSX to position the `<p>` element containing `project.description` immediately after the project title `<h3>`. This will ensure the description appears directly below each post's title while maintaining the existing layout. The next step is editing the rendering section accordingly.)\n"
-        "- inputs: Required inputs/resources/dependencies from previous steps\n"
-        "- outputs: Expected deliverables/artifacts to be produced\n"
+        "- agent: The specific agent (by name) responsible for executing this step\n"
         f"Task: {task_input}\n\n"
         "Plan:"
     )
@@ -105,8 +104,7 @@ def update_plan_with_input(
         "- task_number: Task identifier\n"
         "- description: Clear, specific description of what needs to be accomplished. Be REALLY specific on what agents will be used, where the agents will look for/work in, and an into-depth format of what it will be doing.\n"
         "- action_items: Detailed list of specific tasks to be performed (e.g. The code fetches and displays projects with title, description, and other details. To show the description below the title, I will modify the JSX to position the `<p>` element containing `project.description` immediately after the project title `<h3>`. This will ensure the description appears directly below each post's title while maintaining the existing layout. The next step is editing the rendering section accordingly.)\n"
-        "- inputs: Required inputs/resources/dependencies from previous steps\n"
-        "- outputs: Expected deliverables/artifacts to be produced\n"
+        "- agent: The specific agent (by name) responsible for executing this step\n"
         "- modification_status: \"unchanged\", \"modified\", \"added\", or \"removed\" (to track what changed)\n"
         "- modification_reason: Brief explanation of why this step was changed (only if modified/added/removed)\n\n"
         "When updating the plan:\n"
@@ -150,5 +148,22 @@ if __name__ == '__main__':
         "Eve - Coordination Agent (assigns tasks, tracks progress, ensures all sections of the report are completed and integrated, manages deadlines)"
     ]
     plan = generate_detailed_plan(example_task, available_agents=example_agents)
+    print("Initial Plan:")
     for step in plan:
         print(step)
+
+    # Example: updating the plan with new input
+    print("\n--- Updating Plan with New Input ---")
+    update_input = "Include a section on the economic impact of coral bleaching."
+    # Assume update_plan_with_input is defined in this module
+    try:
+        updated_plan = update_plan_with_input(
+            plan=plan,
+            update_input=update_input,
+            available_agents=example_agents
+        )
+        print("Updated Plan:")
+        for step in updated_plan:
+            print(step)
+    except Exception as e:
+        print(f"Error updating plan: {e}")
