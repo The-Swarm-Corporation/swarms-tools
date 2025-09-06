@@ -21,9 +21,7 @@ if __name__ == "__main__":
 
 import os
 import uuid
-from datetime import datetime
 from typing import Any, Dict, List, Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -32,7 +30,6 @@ class Task(BaseModel):
     description: str = Field(..., description="A detailed description of the task")
     agent: str = Field(..., description="The agent or role responsible for this task")
     completed: bool = Field(default=False, description="Whether the task is completed")
-    completed_at: Optional[datetime] = Field(default=None, description="Timestamp when task was completed")
     
     def display_with_checkbox(self) -> str:
         """Return the task description with checkbox indicator"""
@@ -46,7 +43,6 @@ class Phase(BaseModel):
     objective: str = Field(..., description="The main objective of this phase")
     tasks: List[Task] = Field(..., description="A list of tasks to be completed in this phase")
     is_active: bool = Field(default=False, description="Whether this phase is currently active")
-    completed_at: Optional[datetime] = Field(default=None, description="Timestamp when phase was completed")
     
     def display_tasks(self) -> List[str]:
         """Return all tasks with checkbox indicators"""
@@ -93,10 +89,6 @@ class TaskManager:
         
         # Update task completion
         task.completed = completed
-        if completed:
-            task.completed_at = datetime.now()
-        else:
-            task.completed_at = None
             
         # Check if phase is complete
         self._check_phase_completion(phase_idx)
@@ -112,8 +104,6 @@ class TaskManager:
         all_tasks_completed = all(task.completed for task in phase.tasks)
         
         if all_tasks_completed and not phase.completed_at:
-            phase.completed_at = datetime.now()
-            
             # Activate next phase if available
             if phase_idx + 1 < len(self.task_plan.phases):
                 self.task_plan.phases[phase_idx + 1].is_active = True
