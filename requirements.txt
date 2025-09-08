@@ -6,8 +6,4 @@ tavily
 orjson
 mcp
 lxml
-swarms
-os
-uuid
-typing
 pydantic
