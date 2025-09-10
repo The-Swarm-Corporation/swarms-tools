@@ -32,9 +32,12 @@ class Task(BaseModel):
     completed: bool = Field(default=False, description="Whether the task is completed")
     
     def display_with_checkbox(self) -> str:
-        """Return the task description with checkbox indicator"""
+        """
+        Return the task description with checkbox indicator and agent info.
+        The agent is always included in a machine-readable form for easy retrieval.
+        """
         checkbox = "[X]" if self.completed else "[ ]"
-        return f"{checkbox} {self.description}"
+        return f"{checkbox} {self.description} ##AGENT:{self.agent if self.agent else 'None'}##"
 
 
 class Phase(BaseModel):
@@ -45,7 +48,7 @@ class Phase(BaseModel):
     is_active: bool = Field(default=False, description="Whether this phase is currently active")
     
     def display_tasks(self) -> List[str]:
-        """Return all tasks with checkbox indicators"""
+        """Return all tasks with checkbox indicators and agent info"""
         return [task.display_with_checkbox() for task in self.tasks]
 
 
@@ -142,7 +145,7 @@ class TaskManager:
         return (completed_tasks / total_tasks) * 100
     
     def display_project_status(self) -> str:
-        """Return a formatted string showing the current project status with checkboxes"""
+        """Return a formatted string showing the current project status with checkboxes and agent info"""
         output = f"## {self.task_plan.project_name}\n\n"
         
         for phase in self.task_plan.phases:
@@ -195,7 +198,7 @@ def update_task_completion(task_plan: TaskPlan, task_id: str, completed: bool, a
     for phase in task_plan.phases:
         todo_lines.append(f"## {phase.phase_name}")
         for task in phase.tasks:
-            todo_lines.append(task.display_with_checkbox())
+            todo_lines.append(task.display_with_checkbox())            
         todo_lines.append("")  # Blank line after each phase
 
     completion_pct = manager.get_completion_percentage()
@@ -382,11 +385,11 @@ def update_task_completion_with_logging(
     if success:
         print("   Task updated successfully!")
     else:
-        print("   Failed to update task")
+        print("   Failed to update task 1")
         return {
             "success": False,
             "task_id": task_id,
-            "message": "Failed to update task"
+            "message": "Failed to update task 1"
         }
 
     # Prepare the todo.md content
