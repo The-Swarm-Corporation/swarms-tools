@@ -8,7 +8,18 @@ from swarms_tools.search.self_evolve import modify_file_content
 from swarms_tools.search.task_mgm import (
     task_planner_with_todo,
     generate_todo_md,
-    update_task_completion_with_logging,
+)
+from swarms_tools.search.run_task import (
+    TaskRunner,
+    run_task_without_timeout,
+)
+
+from swarms_tools.search.end_task import (
+    end_task,
+)
+
+from swarms_tools.search.advance_phase import(
+    run_phase_tasks_from_todo,
 )
 
 __all__ = [
@@ -19,5 +30,8 @@ __all__ = [
     "modify_file_content",
     "task_planner_with_todo",
     "generate_todo_md",
-    "update_task_completion_with_logging",
+    "TaskRunner",
+    "run_task_without_timeout",
+    "end_task",
+    "run_phase_tasks_from_todo",
 ]

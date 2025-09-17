@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
 import os
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
@@ -33,11 +33,11 @@ class Task(BaseModel):
     
     def display_with_checkbox(self) -> str:
         """
-        Return the task description with checkbox indicator and agent info.
-        The agent is always included in a machine-readable form for easy retrieval.
+        Return the task description with checkbox indicator, task ID, and agent info.
+        Both ID and agent are stored in machine-readable format for proper retrieval.
         """
         checkbox = "[X]" if self.completed else "[ ]"
-        return f"{checkbox} {self.description} ##AGENT:{self.agent if self.agent else 'None'}##"
+        return f"{checkbox} {self.description} ##ID:{self.id}## ##AGENT:{self.agent if self.agent else 'None'}##"
 
 
 class Phase(BaseModel):
@@ -63,7 +63,7 @@ class TaskManager:
     
     def __init__(self, task_plan: TaskPlan):
         self.task_plan = task_plan
-        self.task_index: Dict[str, tuple[int, int]] = {}  # task_id -> (phase_idx, task_idx)
+        self.task_index: Dict[str, tuple[int, int]] = {}
         self._build_index()
     
     def _build_index(self):
@@ -72,42 +72,12 @@ class TaskManager:
             for task_idx, task in enumerate(phase.tasks):
                 self.task_index[task.id] = (phase_idx, task_idx)
     
-    def update_task_completion(self, task_id: str, completed: bool, agent: Optional[str] = None) -> bool:
-        """
-        Update the completion status of a task.
-        
-        Args:
-            task_id: The ID of the task to update
-            completed: New completion status for the task
-            agent: Agent performing the update (optional)
-            
-        Returns:
-            bool: True if update was successful
-        """
-        if task_id not in self.task_index:
-            return False
-            
-        phase_idx, task_idx = self.task_index[task_id]
-        task = self.task_plan.phases[phase_idx].tasks[task_idx]
-        
-        # Update task completion
-        task.completed = completed
-            
-        # Check if phase is complete
-        self._check_phase_completion(phase_idx)
-        
-        # Check if project is complete
-        self._check_project_completion()
-        
-        return True
-    
     def _check_phase_completion(self, phase_idx: int):
         """Check if a phase is complete and update accordingly"""
         phase = self.task_plan.phases[phase_idx]
         all_tasks_completed = all(task.completed for task in phase.tasks)
         
         if all_tasks_completed:
-            # Activate next phase if available
             if phase_idx + 1 < len(self.task_plan.phases):
                 self.task_plan.phases[phase_idx + 1].is_active = True
     
@@ -130,19 +100,7 @@ class TaskManager:
                 if task.agent == agent and not task.completed:
                     return task
         return None
-    
-    def get_completion_percentage(self) -> float:
-        """Get overall project completion percentage"""
-        total_tasks = sum(len(phase.tasks) for phase in self.task_plan.phases)
-        if total_tasks == 0:
-            return 100.0
-            
-        completed_tasks = sum(
-            sum(1 for task in phase.tasks if task.completed)
-            for phase in self.task_plan.phases
-        )
-        
-        return (completed_tasks / total_tasks) * 100
+
     
     def display_project_status(self) -> str:
         """Return a formatted string showing the current project status with checkboxes and agent info"""
@@ -154,93 +112,9 @@ class TaskManager:
                 output += f"{task.display_with_checkbox()}\n"
             output += "\n"
         
-        completion_pct = self.get_completion_percentage()
-        output += f"**Overall Completion: {completion_pct:.1f}%**\n"
-        
         return output
 
 
-def update_task_completion(task_plan: TaskPlan, task_id: str, completed: bool, agent: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Tool function for updating task completion status.
-    This can be called by agents when they complete tasks.
-
-    Args:
-        task_plan: The current task plan
-        task_id: ID of the task to update
-        completed: New completion status for the task
-        agent: Agent performing the update
-        
-    Returns:
-        Dict containing update result and current project status
-    """
-    
-    print(f"   Updating task {task_id} to {'completed' if completed else 'incomplete'}")
-    
-    manager = TaskManager(task_plan)
-    success = manager.update_task_completion(task_id, completed, agent)
-    
-    if success:
-        print("   Task updated successfully!")
-    else:
-        print("   Failed to update task")
-        return {
-            "success": False,
-            "task_id": task_id,
-            "message": "Failed to update task"
-        }
-
-    # Prepare the todo.md content
-    todo_lines = []
-    todo_lines.append(f"# {task_plan.project_name}")
-    todo_lines.append("")  # Empty line after title
-    
-    for phase in task_plan.phases:
-        todo_lines.append(f"## {phase.phase_name}")
-        for task in phase.tasks:
-            todo_lines.append(task.display_with_checkbox())            
-        todo_lines.append("")  # Blank line after each phase
-
-    completion_pct = manager.get_completion_percentage()
-    todo_lines.append(f"**Overall Completion: {completion_pct:.1f}%**")
-    todo_lines.append("")  # Final empty line
-
-    # Write to todo.md in the current working directory
-    todo_md_path = os.path.join(os.getcwd(), "todo.md")
-    
-    try:
-        with open(todo_md_path, "w", encoding="utf-8") as f:
-            f.write("\n".join(todo_lines))
-        print(f"   todo.md updated at: {todo_md_path}")
-        
-        # Show a preview of the file
-        print("\n   todo.md preview:")
-        print("=" * 50)
-        for i, line in enumerate(todo_lines[:10]):  # Show first 10 lines
-            print(line)
-        if len(todo_lines) > 10:
-            print("...")
-        print("=" * 50)
-        
-    except Exception as e:
-        print(f"   Error writing todo.md: {e}")
-        todo_md_path = ""
-
-    return {
-        "success": success,
-        "task_id": task_id,
-        "completed": completed if success else None,
-        "completion_percentage": completion_pct,
-        "project_completed": task_plan.overall_completed,
-        "message": f"Task {task_id} {'marked as completed' if completed else 'marked as incomplete'}",
-        "todo_md_path": todo_md_path
-    }
-
-
-
-
-#Actual connection from PM agent -> task_mgm tool
-#ONLY DOES PHASE BY PHASE (e.g. if 6 phases, function will have to be called 6 times)
 def task_planner(
     project_name: str,
     phase_dicts: list[dict]
@@ -293,41 +167,37 @@ def task_planner(
 def generate_todo_md(task_plan: TaskPlan, filename: str = "todo.md") -> str:
     """
     Generate and write a todo.md file for the given task plan.
-    
+
     Args:
         task_plan: The TaskPlan object to generate todo.md for
         filename: Name of the file to create (default: "todo.md")
-        
+
     Returns:
-        str: Path to the created file
+        str: The markdown string that was written to the file
     """
-    
-    manager = TaskManager(task_plan)
-    
-    # Prepare the todo.md content
+    if isinstance(task_plan, str):
+        raise TypeError("generate_todo_md() expected a TaskPlan object, but got a string. Did you pass a file path or markdown string instead of a TaskPlan?")
+
+
     todo_lines = []
     todo_lines.append(f"# {task_plan.project_name}")
-    todo_lines.append("")  # Empty line after title
-    
+    todo_lines.append("")
+
     for phase in task_plan.phases:
         todo_lines.append(f"## {phase.phase_name}")
         for task in phase.tasks:
             todo_lines.append(task.display_with_checkbox())
-        todo_lines.append("")  # Blank line after each phase
+        todo_lines.append("")
 
-    completion_pct = manager.get_completion_percentage()
-    todo_lines.append(f"**Overall Completion: {completion_pct:.1f}%**")
-    todo_lines.append("")  # Final empty line
-
-    # Write to file in the current working directory
     todo_md_path = os.path.join(os.getcwd(), filename)
-    
+    todo_md_content = "\n".join(todo_lines)
+
     try:
         with open(todo_md_path, "w", encoding="utf-8") as f:
-            f.write("\n".join(todo_lines))
+            f.write(todo_md_content)
         print(f"   todo.md created successfully at: {todo_md_path}")
         print(f"todo.md found at: {todo_md_path}")
-        return todo_md_path
+        return todo_md_content
     except Exception as e:
         print(f"   Error creating todo.md: {e}")
         print(f"todo.md NOT found at: {todo_md_path}")
@@ -338,102 +208,24 @@ def task_planner_with_todo(
     project_name: str,
     phase_dicts: list[dict],
     create_todo: bool = True
-) -> TaskPlan:
+) -> str:
     """
-    Enhanced version of task_planner that automatically creates todo.md file.
-    
+    Enhanced version of task_planner that creates a TaskPlan, generates markdown for it,
+    writes it to todo.md in the project directory, and returns the markdown string.
+
     Args:
         project_name (str): The name of the overall project.
         phase_dicts (list[dict]): List of dictionaries, each representing a phase.
         create_todo (bool): Whether to create todo.md file automatically
-        
+
     Returns:
-        TaskPlan: A TaskPlan object containing all phases and tasks.
+        str: The markdown string representing the generated todo.md file.
     """
     task_plan = task_planner(project_name, phase_dicts)
-    
+
     if create_todo:
-        generate_todo_md(task_plan)
-    
-    return task_plan
-
-
-def update_task_completion_with_logging(
-    task_plan: TaskPlan, 
-    task_id: str, 
-    completed: bool, 
-    agent: Optional[str] = None
-) -> Dict[str, Any]:
-    """
-    Enhanced version of update_task_completion with better logging and error handling.
-    
-    Args:
-        task_plan: The current task plan
-        task_id: ID of the task to update
-        completed: New completion status for the task
-        agent: Agent performing the update
-        
-    Returns:
-        Dict containing update result and current project status
-    """
-    
-    print(f"   Updating task {task_id} to {'completed' if completed else 'incomplete'}")
-    
-    manager = TaskManager(task_plan)
-    success = manager.update_task_completion(task_id, completed, agent)
-    
-    if success:
-        print("   Task updated successfully!")
+        todo_md_content = generate_todo_md(task_plan)
+        return todo_md_content
     else:
-        print("   Failed to update task 1")
-        return {
-            "success": False,
-            "task_id": task_id,
-            "message": "Failed to update task 1"
-        }
-
-    # Prepare the todo.md content
-    todo_lines = []
-    todo_lines.append(f"# {task_plan.project_name}")
-    todo_lines.append("")  # Empty line after title
-    
-    for phase in task_plan.phases:
-        todo_lines.append(f"## {phase.phase_name}")
-        for task in phase.tasks:
-            todo_lines.append(task.display_with_checkbox())
-        todo_lines.append("")  # Blank line after each phase
-
-    completion_pct = manager.get_completion_percentage()
-    todo_lines.append(f"**Overall Completion: {completion_pct:.1f}%**")
-    todo_lines.append("")  # Final empty line
-
-    # Write to todo.md in the current working directory
-    todo_md_path = os.path.join(os.getcwd(), "todo.md")
-    
-    try:
-        with open(todo_md_path, "w", encoding="utf-8") as f:
-            f.write("\n".join(todo_lines))
-        print(f"todo.md updated at: {todo_md_path}")
-        
-        # Show a preview of the file
-        print("\ntodo.md preview:")
-        print("=" * 50)
-        for i, line in enumerate(todo_lines[:10]):  # Show first 10 lines
-            print(line)
-        if len(todo_lines) > 10:
-            print("...")
-        print("=" * 50)
-        
-    except Exception as e:
-        print(f"Error writing todo.md: {e}")
-        todo_md_path = ""
-
-    return {
-        "success": success,
-        "task_id": task_id,
-        "completed": completed if success else None,
-        "completion_percentage": completion_pct,
-        "project_completed": task_plan.overall_completed,
-        "message": f"Task {task_id} {'marked as completed' if completed else 'marked as incomplete'}",
-        "todo_md_path": todo_md_path
-    }
+        manager = TaskManager(task_plan)
+        return manager.display_project_status()

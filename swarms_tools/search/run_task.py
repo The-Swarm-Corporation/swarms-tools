@@ -13,7 +13,6 @@ Example usage:
         agent=agent_object,
         task_description="Research the latest trends in AI.",
     )
-    # OR, if agent is a string name and AGENTS is available in global scope:
     result = run_task_without_timeout(
         agent="MarketResearcher",
         task_description="Research the latest trends in AI.",
@@ -57,7 +56,7 @@ class TaskRunner:
         task_description: str,
         args: Tuple = (),
         kwargs: Dict = {},
-    ) -> Dict[str, Any]:
+    ) -> str:
         """
         Execute the task using the provided agent.
 
@@ -68,7 +67,7 @@ class TaskRunner:
             kwargs: Keyword arguments for the agent (optional)
 
         Returns:
-            Dictionary containing execution results and metadata
+            String containing execution results and metadata
         """
         print("=" * 60)
 
@@ -81,10 +80,8 @@ class TaskRunner:
         try:
             agent_obj = agent
 
-            # Prefer agent_obj(task_description, *args, **kwargs) if agent_obj is callable
             if callable(agent_obj):
                 result = agent_obj(task_description, *args, **kwargs)
-            # Otherwise, try agent_obj.run(task_description, *args, **kwargs)
             elif hasattr(agent_obj, "run") and callable(getattr(agent_obj, "run")):
                 result = agent_obj.run(task_description, *args, **kwargs)
             else:
@@ -101,9 +98,9 @@ class TaskRunner:
 
         return self._create_result(result if self.success else None)
 
-    def _create_result(self, task_result: Any = None) -> Dict[str, Any]:
-        """Create the result dictionary with execution metadata."""
-        return {
+    def _create_result(self, task_result: Any = None) -> str:
+        """Create the result string with execution metadata."""
+        result_dict = {
             "success": self.success,
             "result": task_result,
             "execution_time": self.execution_time,
@@ -112,9 +109,18 @@ class TaskRunner:
             "error_message": self.error_message,
             "scheduled_start": self.time_start.isoformat() if self.time_start else None
         }
+        lines = []
+        lines.append("Task Execution Result:")
+        lines.append(f"  Success: {result_dict['success']}")
+        lines.append(f"  Scheduled Start: {result_dict['scheduled_start']}")
+        lines.append(f"  Start Time: {result_dict['start_time']}")
+        lines.append(f"  End Time: {result_dict['end_time']}")
+        lines.append(f"  Execution Time (s): {result_dict['execution_time']}")
+        lines.append(f"  Error Message: {result_dict['error_message']}")
+        return "\n".join(lines)
 
-    def _create_failure_result(self, message: str) -> Dict[str, Any]:
-        """Create a failure result dictionary."""
+    def _create_failure_result(self, message: str) -> str:
+        """Create a failure result string."""
         self.success = False
         self.error_message = message
         return self._create_result()
@@ -125,7 +131,7 @@ def run_task_without_timeout(
     args: Tuple = (),
     kwargs: Dict = {},
     time_start: Optional[datetime] = None,
-) -> Dict[str, Any]:
+) -> str:
     """
     Run a task using the specified agent, without a timeout.
 
@@ -137,7 +143,7 @@ def run_task_without_timeout(
         time_start: Scheduled start time (optional)
 
     Returns:
-        Dictionary with execution results
+        String with execution results
     """
     runner = TaskRunner(
         time_start=time_start,
