@@ -22,6 +22,6 @@ agent.run(
     #TEST -> Message & Wait for User till Response
     "Ask how the user feels today and respond supportively, including a status update." 
 
-    #TEST -> Send a message to user
-    "Send messages while thinking on helping me as I am really sad and stressed becasue of college applications." 
+    # #TEST -> Send a message to user
+    # "Send messages while thinking on helping me as I am really sad and stressed becasue of college applications." 
 )
