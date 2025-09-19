@@ -5,11 +5,7 @@ from swarms_tools.search.web_scraper import (
 )
 from swarms_tools.search.firecrawl import crawl_entire_site_firecrawl
 from swarms_tools.search.self_evolve import modify_file_content
-from swarms_tools.search.task_mgm import (
-    task_planner_with_todo,
-    generate_todo_md,
-    update_task_completion_with_logging,
-)
+from swarms_tools.search.msg_notify_user import notify_user
 
 __all__ = [
     "exa_search",
@@ -20,4 +16,5 @@ __all__ = [
     "task_planner_with_todo",
     "generate_todo_md",
     "update_task_completion_with_logging",
+    "notify_user",
 ]
