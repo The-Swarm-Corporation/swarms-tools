@@ -26,7 +26,7 @@ def notify_user(query: str) -> str:
         print(f"\n[AGENT REQUEST] {query}")
         sys.stdout.flush()
         try:
-            user_response = input("Your input: ")
+            user_response = input("Enter: ")
         except EOFError:
             print("[ERROR] No input received (EOF). Returning empty string.")
             return ""
