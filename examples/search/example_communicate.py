@@ -18,12 +18,11 @@ agent = Agent(
     dynamic_temperature_enabled=True,
 )
 
+
+"""
+#TEST -> Message & Wait for User till Response 
+"""
+
 agent.run(
-#CHOOSE ONLY ONE OF THE FOLLOWING TO WORK, NOT BOTH!!!
-
-    # #TEST -> Send a message to user
-    # "Ask how the user feels today and respond supportively, including a status update." 
-
-    #TEST -> Message & Wait for User till Response 
     "Send messages while thinking on helping me as I am really sad and stressed becasue of college applications." 
 )

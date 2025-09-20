@@ -6,4 +6,5 @@ tavily
 orjson
 mcp
 lxml
+swarms
 pydantic
