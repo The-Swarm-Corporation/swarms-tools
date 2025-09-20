@@ -20,7 +20,7 @@ agent = Agent(
 
 
 """
-#TEST -> Message & Wait for User till Response 
+#TEST -> Message & Get User Response
 """
 
 agent.run(
