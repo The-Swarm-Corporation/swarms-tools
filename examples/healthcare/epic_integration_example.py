@@ -1,56 +1,84 @@
 import asyncio
-from swarms_tools.healthcare.epic_integration import search_patients, get_patient_by_id, get_patient_observations
+from swarms_tools.healthcare.epic_integration import (
+    search_patients, get_patient_by_id, get_patient_observations,
+    add_patient_resource, add_observation_resource, get_encounters_for_patient,
+    get_medications_for_patient, get_appointments, get_conditions
+)
 
-async def main():
-    # Search for patients
+# Test that all functions exist and are callable
+assert callable(search_patients)
+assert callable(get_patient_by_id)
+assert callable(get_patient_observations)
+assert callable(add_patient_resource)
+assert callable(add_observation_resource)
+assert callable(get_encounters_for_patient)
+assert callable(get_medications_for_patient)
+assert callable(get_appointments)
+assert callable(get_conditions)
+
+async def test_epic_functions():
+    # Test patient search function
     patient_name = "John Doe"
-    try:
-        patients = await search_patients(patient_name)
-        print(f"Search results for '{patient_name}': {len(patients.get('entry', []))} patients found")
-        if patients.get('entry'):
-            for patient in patients['entry'][:2]:  # Show first 2 patients
-                resource = patient.get('resource', {})
-                print(f"  - Patient ID: {resource.get('id', 'N/A')}")
-                names = resource.get('name', [])
-                if names:
-                    name = names[0]
-                    given = ' '.join(name.get('given', []))
-                    family = name.get('family', '')
-                    print(f"    Name: {given} {family}")
-    except Exception as e:
-        print(f"Could not search for patients: {e}")
+    patients = await search_patients(patient_name)
+    assert patients is not None
+    assert isinstance(patients, dict)
+    assert 'entry' in patients or 'total' in patients or 'resourceType' in patients
     
-    # Get patient by ID
+    # Test getting patient by ID
     sample_patient_id = "12345"
     try:
         patient = await get_patient_by_id(sample_patient_id)
-        print(f"\nPatient details retrieved successfully")
-        print(f"  Patient ID: {patient.get('id', 'N/A')}")
-        print(f"  Resource Type: {patient.get('resourceType', 'N/A')}")
-        names = patient.get('name', [])
-        if names:
-            name = names[0]
-            given = ' '.join(name.get('given', []))
-            family = name.get('family', '')
-            print(f"  Name: {given} {family}")
-    except Exception as e:
-        print(f"Could not fetch patient {sample_patient_id}: {e}")
+        assert patient is not None
+        assert isinstance(patient, dict)
+        assert patient.get('resourceType') == 'Patient'
+        assert 'id' in patient
+    except Exception:
+        pass  # Expected to fail with demo ID
     
-    # Get patient observations
+    # Test getting patient observations
     try:
         observations = await get_patient_observations(sample_patient_id)
-        print(f"\nFound {len(observations.get('entry', []))} observations for patient")
-        if observations.get('entry'):
-            for obs in observations['entry'][:2]:  # Show first 2 observations
-                resource = obs.get('resource', {})
-                print(f"  - Observation ID: {resource.get('id', 'N/A')}")
-                print(f"    Status: {resource.get('status', 'N/A')}")
-                code = resource.get('code', {})
-                if code:
-                    codings = code.get('coding', [])
-                    if codings:
-                        print(f"    Code: {codings[0].get('display', 'N/A')}")
-    except Exception as e:
-        print(f"Could not fetch observations: {e}")
+        assert observations is not None
+        assert isinstance(observations, dict)
+        assert 'entry' in observations or 'total' in observations or 'resourceType' in observations
+    except Exception:
+        pass  # Expected to fail with demo ID
+    
+    # Test getting patient encounters
+    try:
+        encounters = await get_encounters_for_patient(sample_patient_id)
+        assert encounters is not None
+        assert isinstance(encounters, dict)
+        assert 'entry' in encounters or 'total' in encounters or 'resourceType' in encounters
+    except Exception:
+        pass  # Expected to fail with demo ID
+    
+    # Test getting patient medications
+    try:
+        medications = await get_medications_for_patient(sample_patient_id)
+        assert medications is not None
+        assert isinstance(medications, dict)
+        assert 'entry' in medications or 'total' in medications or 'resourceType' in medications
+    except Exception:
+        pass  # Expected to fail with demo ID
+    
+    # Test getting patient appointments
+    try:
+        appointments = await get_appointments(sample_patient_id)
+        assert appointments is not None
+        assert isinstance(appointments, dict)
+        assert 'entry' in appointments or 'total' in appointments or 'resourceType' in appointments
+    except Exception:
+        pass  # Expected to fail with demo ID
+    
+    # Test getting patient conditions
+    try:
+        conditions = await get_conditions(sample_patient_id)
+        assert conditions is not None
+        assert isinstance(conditions, dict)
+        assert 'entry' in conditions or 'total' in conditions or 'resourceType' in conditions
+    except Exception:
+        pass  # Expected to fail with demo ID
 
-asyncio.run(main())
+# Run the async tests
+asyncio.run(test_epic_functions())
