@@ -1,26 +1,69 @@
-from swarms_tools.devs.github import get_user_info, get_repo_details, list_repo_issues
+from swarms_tools.devs.github import (
+    get_user_info, get_repo_details, list_repo_issues, create_issue,
+    list_open_prs, close_issue, create_pull_request, merge_pull_request,
+    list_repo_collaborators, add_repo_collaborator
+)
 
-# Get user information
+# Test that all functions exist and are callable
+assert callable(get_user_info)
+assert callable(get_repo_details)
+assert callable(list_repo_issues)
+assert callable(create_issue)
+assert callable(list_open_prs)
+assert callable(close_issue)
+assert callable(create_pull_request)
+assert callable(merge_pull_request)
+assert callable(list_repo_collaborators)
+assert callable(add_repo_collaborator)
+
+# Test user info function with real API call
 username = "octocat"
 user_info = get_user_info(username)
-print(f"User info for {username}:")
-print(f"  Name: {user_info.get('name', 'N/A')}")
-print(f"  Public repos: {user_info.get('public_repos', 'N/A')}")
-print(f"  Followers: {user_info.get('followers', 'N/A')}")
+assert user_info is not None
+assert isinstance(user_info, dict)
+assert 'login' in user_info
+assert user_info['login'] == username
+assert 'public_repos' in user_info
+assert 'followers' in user_info
 
-# Get repository details
+# Test repository details function
 owner = "microsoft"
 repo = "vscode"
 repo_details = get_repo_details(owner, repo)
-print(f"\nRepository: {repo_details.get('full_name', 'N/A')}")
-print(f"Description: {repo_details.get('description', 'N/A')}")
-print(f"Stars: {repo_details.get('stargazers_count', 'N/A')}")
-print(f"Language: {repo_details.get('language', 'N/A')}")
+assert repo_details is not None
+assert isinstance(repo_details, dict)
+assert 'full_name' in repo_details
+assert repo_details['full_name'] == f"{owner}/{repo}"
+assert 'stargazers_count' in repo_details
+assert 'language' in repo_details
 
-# List open issues
+# Test issues listing function
 issues = list_repo_issues(owner, repo, state="open")
-print(f"\nFound {len(issues)} open issues")
-for issue in issues[:3]:  # Show first 3 issues
-    print(f"  - Issue #{issue.get('number', 'N/A')}: {issue.get('title', 'N/A')}")
-    print(f"    State: {issue.get('state', 'N/A')}")
-    print(f"    Created: {issue.get('created_at', 'N/A')}")
+assert issues is not None
+assert isinstance(issues, list)
+assert len(issues) >= 0  # Can be empty but should be a list
+
+# Test that each issue has required fields
+if issues:
+    issue = issues[0]
+    assert isinstance(issue, dict)
+    assert 'number' in issue
+    assert 'title' in issue
+    assert 'state' in issue
+    assert 'created_at' in issue
+
+# Test pull requests listing function
+prs = list_open_prs(owner, repo)
+assert prs is not None
+assert isinstance(prs, list)
+assert len(prs) >= 0  # Can be empty but should be a list
+
+# Test that each PR has required fields
+if prs:
+    pr = prs[0]
+    assert isinstance(pr, dict)
+    assert 'number' in pr
+    assert 'title' in pr
+    assert 'state' in pr
+    assert 'head' in pr
+    assert 'base' in pr
