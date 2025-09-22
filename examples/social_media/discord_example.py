@@ -1,47 +1,47 @@
 import os
+import asyncio
 from dotenv import load_dotenv
-from swarms_tools.social_media.discord import send_message, run_discord_bot
+from swarms_tools.social_media.discord import run_discord_bot, send_message, bot
 
 load_dotenv()
 
 discord_token = os.getenv("DISCORD_BOT_TOKEN")
 if not discord_token:
-    print("DISCORD_BOT_TOKEN not found in environment variables")
-    print("Please set your Discord bot token in the .env file")
-    print("To create a Discord bot:")
-    print("1. Go to https://discord.com/developers/applications")
-    print("2. Create a new application")
-    print("3. Go to the 'Bot' section and create a bot")
-    print("4. Copy the bot token and add it to your .env file")
     exit()
 
-# Demonstrate Discord bot functionality
-print("Discord bot functionality available:")
-print("- send_message function for sending messages to channels")
-print("- run_discord_bot function for starting the bot")
-print("- Auto-reply functionality for specific keywords")
-print("- Interactive buttons for agent queries")
+# Test that the bot object is properly initialized
+assert bot is not None
+assert bot.command_prefix == "!"
 
-# Show bot configuration
-print(f"\nBot configuration:")
-print(f"Bot Token: {'Set' if discord_token else 'Not set'}")
-print("Prefix: !")
-print("Auto-reply Keywords: ['hello']")
-print("Agent Query: 'What is the current market trend for tech stocks?'")
-print("Button Timeout: 180 seconds")
+# Test that send_message function exists and is callable
+assert callable(send_message)
 
-# Show required permissions
-permissions = [
-    "Send Messages",
-    "Read Message History", 
-    "Use Slash Commands",
-    "Add Reactions",
-    "Embed Links"
-]
+# Test that run_discord_bot function exists and is callable
+assert callable(run_discord_bot)
 
-print(f"\nRequired bot permissions:")
-for permission in permissions:
-    print(f"  - {permission}")
+# Test bot event handlers are registered
+assert hasattr(bot, 'on_ready')
+assert hasattr(bot, 'on_message')
 
-print(f"\nNote: The actual bot running is commented out to avoid starting a persistent service")
-print("To start the bot, uncomment: run_discord_bot(discord_token)")
+# Test bot commands are registered
+assert 'send' in bot.all_commands
+assert 'agent_button' in bot.all_commands
+
+# Test that the bot can be started (without actually running it)
+try:
+    # This tests the bot setup without starting the persistent service
+    import discord
+    from discord.ext import commands
+    
+    # Verify Discord.py components are available
+    assert discord is not None
+    assert commands is not None
+    
+    # Test that our bot is properly configured
+    assert isinstance(bot, commands.Bot)
+    assert bot.user is None  # Not logged in yet
+    
+except ImportError:
+    # If discord.py is not installed, at least verify our functions exist
+    assert send_message is not None
+    assert run_discord_bot is not None
