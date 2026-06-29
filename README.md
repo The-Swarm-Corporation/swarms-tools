@@ -133,6 +133,18 @@ post_tweet = twitter_plugin.get_function("post_tweet")
 post_tweet("Enterprise update from Swarms Corp")
 ```
 
+### Xquik Tool
+
+Read X data through Xquik with an API key.
+
+```python
+from swarms_tools.social_media.xquik import XquikTool
+
+xquik = XquikTool()
+tweets = xquik.search_tweets("AI agents", limit=10)
+profile = xquik.get_user("swarms_corp")
+```
+
 ### Dex Screener
 
 Enterprise-grade tool for accessing decentralized exchange data across multiple blockchain networks.
