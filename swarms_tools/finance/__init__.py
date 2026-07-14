@@ -39,7 +39,10 @@ from swarms_tools.finance.unified_solana_coin_api import (
     fetch_solana_coin_info,
 )
 
+from swarms_tools.finance.ophis_swap import ophis_swap
+
 __all__ = [
+    "ophis_swap",
     "fetch_stock_news",
     "fetch_htx_data",
     "yahoo_finance_api",

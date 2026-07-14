@@ -8,3 +8,4 @@ mcp
 lxml
 swarms
 pydantic
+eth-account

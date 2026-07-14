@@ -29,6 +29,7 @@ backoff = "*"
 orjson = "*"
 mcp = "*"
 lxml = "*"
+eth-account = "*"
 
 
 [tool.poetry.group.lint.dependencies]
